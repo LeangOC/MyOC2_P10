@@ -1,6 +1,49 @@
 # Cahier des charges — Your Car Your Way
 
-## 1. Objet du document
+## Sommaire
+
+1. Objet du document
+2. Contexte du projet
+3. Objectifs du projet
+4. Périmètre
+5. Parties prenantes
+6. Profils utilisateurs
+7. Analyse des besoins utilisateurs
+8. Liste des fonctionnalités
+9. Spécifications fonctionnelles
+
+    * Gestion du compte
+    * Gestion du profil
+    * Recherche de véhicules
+    * Agences
+    * Offres de location
+    * Réservation
+    * Paiement
+    * Confirmation de réservation
+    * Historique des réservations
+    * Modification d'une réservation
+    * Annulation et remboursement
+    * API interne pour les agences
+    * Tchat avec le support
+10. Exigences particulières
+
+* Accessibilité
+* Sécurité
+* Protection des données personnelles
+* Performance
+* Internationalisation
+* Éco-conception
+
+11. Contraintes et dépendances
+12. Product Backlog
+13. Priorisation
+14. Critères généraux d'acceptation
+15. Points à préciser avant l'implémentation
+16. Synthèse
+
+---
+
+# 1. Objet du document
 
 Ce cahier des charges définit les besoins fonctionnels, les exigences utilisateurs et les contraintes non fonctionnelles de la nouvelle application **Your Car Your Way (YCYW)**.
 
@@ -49,7 +92,7 @@ La nouvelle application doit permettre de :
 
 ---
 
-# 4. Périmètre fonctionnel
+# 4. Périmètre
 
 ## 4.1 Fonctionnalités incluses dans la V1
 
@@ -75,11 +118,11 @@ La première version comprend :
 * tchat avec le support d'une agence ;
 * exigences d'accessibilité, de sécurité, d'internationalisation et de performance.
 
-Le portail client est accessible depuis les différents marchés de l'entreprise. Le paiement est externalisé auprès de Stripe et l'API REST est consommée par les applications internes utilisées en agence.
+Le portail client est accessible depuis les différents marchés de l'entreprise.
 
----
+Le paiement est externalisé auprès de Stripe et l'API REST est consommée par les applications internes utilisées en agence.
 
-# 5. Fonctionnalités hors périmètre
+## 4.2 Fonctionnalités hors périmètre
 
 Les éléments suivants ne sont pas inclus dans la V1 :
 
@@ -91,7 +134,7 @@ Les éléments suivants ne sont pas inclus dans la V1 :
 
 ---
 
-# 6. Parties prenantes
+# 5. Parties prenantes
 
 | Partie prenante          | Rôle                                                    |
 | ------------------------ | ------------------------------------------------------- |
@@ -103,9 +146,9 @@ Les éléments suivants ne sont pas inclus dans la V1 :
 
 ---
 
-# 7. Profils utilisateurs
+# 6. Profils utilisateurs
 
-## 7.1 Client
+## 6.1 Client
 
 Le client utilise principalement l'application web pour :
 
@@ -118,7 +161,7 @@ Le client utilise principalement l'application web pour :
 * modifier ou annuler une réservation ;
 * contacter une agence via le tchat.
 
-## 7.2 Agent en agence
+## 6.2 Agent en agence
 
 L'agent utilise principalement les services exposés par l'API pour :
 
@@ -131,29 +174,134 @@ L'accès aux services d'agence doit être sécurisé et authentifié.
 
 ---
 
-# 8. Parcours utilisateur principal
+# 7. Analyse des besoins utilisateurs
 
-Le parcours principal correspond à la réservation d'un véhicule.
+## 7.1 Objectif
 
-```text
-Accueil
-   ↓
-Recherche
-   ↓
-Liste des offres
-   ↓
-Détail d'une offre
-   ↓
-Saisie / vérification des informations
-   ↓
-Récapitulatif
-   ↓
-Paiement Stripe
-   ↓
-Confirmation
-```
+L'analyse des besoins utilisateurs permet d'identifier les attentes des différents utilisateurs de la future plateforme avant de les traduire en fonctionnalités.
 
-Le parcours doit être simple et permettre au client de réaliser une réservation sans ressaisie inutile de ses informations lorsque celles-ci sont déjà disponibles dans son profil.
+Elle prend en compte :
+
+* les profils utilisateurs ;
+* leurs usages ;
+* leurs besoins ;
+* leurs difficultés ;
+* les contraintes d'accessibilité ;
+* les besoins métier ;
+* le contexte international.
+
+## 7.2 Personas
+
+### Persona 1 — Client régulier
+
+**Maria, 34 ans, Barcelone**
+
+Maria utilise régulièrement le service de location pour ses déplacements professionnels.
+
+* Utilise l'application depuis un smartphone en déplacement.
+* Effectue plusieurs locations par an.
+* Recherche un parcours de réservation rapide.
+* Souhaite retrouver facilement son historique.
+* Souhaite pouvoir modifier facilement une réservation.
+* Ne souhaite pas ressaisir ses informations personnelles à chaque réservation.
+
+**Besoins principaux :**
+
+* rapidité ;
+* historique accessible ;
+* modification simple ;
+* réutilisation des informations du profil.
+
+---
+
+### Persona 2 — Client occasionnel
+
+**Thomas, 52 ans, Lyon**
+
+Thomas réserve une voiture une à deux fois par an pour ses vacances.
+
+* Est peu à l'aise avec les interfaces numériques.
+* A besoin d'un parcours simple.
+* Doit pouvoir comprendre facilement les erreurs éventuelles.
+* Doit pouvoir identifier clairement la confirmation de sa réservation.
+
+**Besoins principaux :**
+
+* interface simple ;
+* messages d'erreur clairs ;
+* confirmation visible ;
+* informations facilement compréhensibles.
+
+---
+
+### Persona 3 — Utilisateur en situation de handicap
+
+**Amara, 29 ans, Londres**
+
+Amara utilise un lecteur d'écran pour naviguer sur Internet.
+
+* Utilise principalement le clavier.
+* A besoin de labels accessibles.
+* A besoin d'un ordre de focus logique.
+* Utilise une technologie d'assistance.
+
+**Besoins principaux :**
+
+* navigation clavier complète ;
+* labels ARIA cohérents ;
+* ordre de focus logique ;
+* compatibilité avec les lecteurs d'écran ;
+* respect des exigences WCAG 2.1 niveau AA et RGAA 4.1.
+
+---
+
+### Persona 4 — Agent en agence
+
+**Kenji, 41 ans, Toronto**
+
+Kenji utilise l'application interne de son agence qui communique avec l'API de Your Car Your Way.
+
+**Besoins principaux :**
+
+* API stable ;
+* documentation claire ;
+* réponses rapides ;
+* accès sécurisé ;
+* données cohérentes.
+
+## 7.3 Synthèse des besoins
+
+| Profil                                             | Besoins principaux                                  |
+| -------------------------------------------------- | --------------------------------------------------- |
+| Client régulier                                    | Rapidité, historique, modification, pré-remplissage |
+| Client occasionnel                                 | Simplicité, clarté, messages d'erreur               |
+| Utilisateur utilisant une technologie d'assistance | Accessibilité, navigation clavier, lecteur d'écran  |
+| Agent en agence                                    | API stable, sécurisée, documentée et performante    |
+
+---
+
+# 8. Liste des fonctionnalités
+
+La V1 de Your Car Your Way comprend les principaux domaines fonctionnels suivants :
+
+| Domaine              | Fonctionnalités principales                                            |
+| -------------------- | ---------------------------------------------------------------------- |
+| Gestion du compte    | Création, authentification, déconnexion, réinitialisation, suppression |
+| Gestion du profil    | Consultation et modification des informations personnelles             |
+| Recherche            | Recherche selon les critères de location                               |
+| Agences              | Consultation des agences disponibles                                   |
+| Offres               | Consultation, filtrage, tri et détail des offres                       |
+| Réservation          | Sélection d'une offre et création d'une réservation                    |
+| Paiement             | Paiement externe via Stripe                                            |
+| Confirmation         | Confirmation de la réservation                                         |
+| Réservations         | Historique, modification, annulation et remboursement                  |
+| API agences          | Gestion des utilisateurs, réservations, offres et agences              |
+| Support              | Tchat avec une agence                                                  |
+| Accessibilité        | Navigation clavier et lecteurs d'écran                                 |
+| Internationalisation | Langues, devises, fuseaux horaires et formats locaux                   |
+| Sécurité             | Authentification, protection des données et sécurisation des échanges  |
+| Performance          | Temps de réponse, disponibilité et montée en charge                    |
+| Éco-conception       | Réduction de la consommation de ressources                             |
 
 ---
 
@@ -161,7 +309,7 @@ Le parcours doit être simple et permettre au client de réaliser une réservati
 
 ## 9.1 Gestion du compte
 
-### Création de compte
+### 9.1.1 Création de compte
 
 Le visiteur doit pouvoir créer un compte à partir d'une adresse e-mail et d'un mot de passe.
 
@@ -171,7 +319,7 @@ Le système doit :
 * empêcher la création de plusieurs comptes avec la même adresse e-mail ;
 * sécuriser le stockage du mot de passe.
 
-### Authentification
+### 9.1.2 Authentification
 
 Le client doit pouvoir :
 
@@ -179,11 +327,11 @@ Le client doit pouvoir :
 * accéder à son espace personnel ;
 * se déconnecter.
 
-### Réinitialisation du mot de passe
+### 9.1.3 Réinitialisation du mot de passe
 
 Un client ayant perdu son mot de passe doit pouvoir demander sa réinitialisation via son adresse e-mail.
 
-### Suppression du compte
+### 9.1.4 Suppression du compte
 
 Le client doit pouvoir demander la suppression de son compte.
 
@@ -195,7 +343,7 @@ Si une réservation active empêche la suppression du compte, le système doit e
 
 ---
 
-# 10. Gestion du profil
+## 9.2 Gestion du profil
 
 Le client doit pouvoir consulter et gérer ses informations personnelles.
 
@@ -215,7 +363,7 @@ Le client ne doit pouvoir consulter ou modifier que ses propres informations.
 
 ---
 
-# 11. Recherche de véhicules
+## 9.3 Recherche de véhicules
 
 Le client doit pouvoir rechercher une offre de location à partir des critères suivants :
 
@@ -233,7 +381,7 @@ La date de retour doit être postérieure d'au moins deux heures à la date de d
 
 ---
 
-# 12. Agences
+## 9.4 Agences
 
 L'application doit permettre de consulter les agences de location disponibles.
 
@@ -245,7 +393,7 @@ Une agence doit pouvoir être utilisée comme :
 
 ---
 
-# 13. Offres de location
+## 9.5 Offres de location
 
 Le client doit pouvoir consulter les offres correspondant aux critères de recherche.
 
@@ -271,7 +419,7 @@ Les catégories de véhicules doivent utiliser la classification **ACRISS**.
 
 ---
 
-# 14. Réservation
+## 9.6 Réservation
 
 Le client doit pouvoir réserver une offre disponible.
 
@@ -290,7 +438,7 @@ Le client doit pouvoir vérifier ces informations avant de procéder au paiement
 
 ---
 
-# 15. Paiement
+## 9.7 Paiement
 
 Le paiement doit être réalisé via un prestataire de paiement externe : **Stripe**.
 
@@ -302,7 +450,7 @@ Les statuts de paiement doivent pouvoir être synchronisés via les mécanismes 
 
 ---
 
-# 16. Confirmation de réservation
+## 9.8 Confirmation de réservation
 
 Après paiement réussi, le client doit recevoir une confirmation de sa réservation.
 
@@ -316,7 +464,7 @@ Une confirmation par e-mail doit être envoyée au client.
 
 ---
 
-# 17. Historique des réservations
+## 9.9 Historique des réservations
 
 Le client doit pouvoir consulter l'ensemble de ses réservations.
 
@@ -330,7 +478,7 @@ Le client doit pouvoir consulter le détail d'une réservation.
 
 ---
 
-# 18. Modification d'une réservation
+## 9.10 Modification d'une réservation
 
 Le client doit pouvoir modifier une réservation jusqu'à **48 heures avant son début**.
 
@@ -345,7 +493,7 @@ Une modification n'est pas autorisée lorsque la réservation se situe à moins 
 
 ---
 
-# 19. Annulation et remboursement
+## 9.11 Annulation et remboursement
 
 Le client doit pouvoir demander l'annulation d'une réservation.
 
@@ -363,7 +511,7 @@ Une annulation réalisée moins de 48 heures avant le départ ne permet pas de m
 
 ---
 
-# 20. API interne pour les agences
+## 9.12 API interne pour les agences
 
 Une API REST doit permettre aux applications utilisées en agence d'accéder aux données métier.
 
@@ -387,7 +535,7 @@ Une rétrocompatibilité doit être prévue afin de permettre un déploiement pr
 
 ---
 
-# 21. Tchat avec le support
+## 9.13 Tchat avec le support
 
 Un client connecté doit pouvoir ouvrir une session de tchat avec le support d'une agence.
 
@@ -409,9 +557,9 @@ La connexion WebSocket doit être authentifiée.
 
 ---
 
-# 22. Exigences non fonctionnelles
+# 10. Exigences particulières
 
-## 22.1 Accessibilité
+## 10.1 Accessibilité
 
 L'application doit être accessible aux personnes en situation de handicap.
 
@@ -426,19 +574,19 @@ Les exigences principales sont :
 * messages d'erreur explicites ;
 * absence de contenus susceptibles de provoquer des crises photosensibles.
 
-Pour le tchat :
+### Accessibilité du tchat
 
-* navigation au clavier ;
-* gestion correcte du focus ;
-* possibilité de fermer la fenêtre au clavier ;
-* annonce des nouveaux messages aux lecteurs d'écran ;
-* champ de saisie correctement labellisé.
+Le tchat doit également permettre :
 
-Ces exigences sont issues des contraintes d'accessibilité définies dans le cahier des charges.
+* une navigation au clavier ;
+* une gestion correcte du focus ;
+* la fermeture de la fenêtre au clavier ;
+* l'annonce des nouveaux messages aux lecteurs d'écran ;
+* l'utilisation d'un champ de saisie correctement labellisé.
 
 ---
 
-# 23. Sécurité
+## 10.2 Sécurité
 
 La solution doit respecter les exigences de sécurité suivantes :
 
@@ -461,7 +609,7 @@ Les opérations sensibles à tracer comprennent notamment :
 
 ---
 
-# 24. Protection des données personnelles
+## 10.3 Protection des données personnelles
 
 Les données personnelles doivent être protégées conformément aux réglementations applicables.
 
@@ -477,7 +625,7 @@ La suppression d'un compte doit entraîner le traitement approprié des données
 
 ---
 
-# 25. Performance
+## 10.4 Performance et disponibilité
 
 Les objectifs de performance sont :
 
@@ -490,7 +638,7 @@ Ces objectifs constituent les cibles de la future architecture.
 
 ---
 
-# 26. Internationalisation
+## 10.5 Internationalisation
 
 La nouvelle plateforme doit être conçue pour un fonctionnement international.
 
@@ -513,7 +661,7 @@ Les dates doivent être stockées de manière cohérente et affichées selon le 
 
 ---
 
-# 27. Éco-conception
+## 10.6 Éco-conception
 
 L'application doit limiter sa consommation de ressources.
 
@@ -531,7 +679,7 @@ L'objectif de performance Lighthouse est fixé à **85 minimum**, sur desktop co
 
 ---
 
-# 28. Contraintes et dépendances
+# 11. Contraintes et dépendances
 
 | Élément                  | Contrainte                                                      |
 | ------------------------ | --------------------------------------------------------------- |
@@ -542,55 +690,53 @@ L'objectif de performance Lighthouse est fixé à **85 minimum**, sur desktop co
 | **Accessibilité**        | WCAG 2.1 AA / RGAA 4.1                                          |
 | **Internationalisation** | Support de plusieurs langues, pays, devises et fuseaux horaires |
 
-Ces contraintes sont notamment identifiées comme dépendances du projet dans le cahier des charges de référence.
-
 ---
 
-# 29. Product Backlog
+# 12. Product Backlog
 
 Le Product Backlog constitue la traduction opérationnelle des besoins définis dans ce cahier des charges.
 
-| ID    | Fonctionnalité                   | User Story                                                                                                                              | Priorité    |
-| ----- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| US-01 | Création de compte               | En tant que visiteur, je veux créer un compte afin de pouvoir effectuer des réservations.                                               | Must Have   |
-| US-02 | Authentification                 | En tant que client, je veux m'authentifier afin d'accéder à mon espace personnel.                                                       | Must Have   |
-| US-03 | Déconnexion                      | En tant que client, je veux me déconnecter afin de protéger l'accès à mon compte.                                                       | Must Have   |
-| US-04 | Réinitialisation du mot de passe | En tant que client, je veux réinitialiser mon mot de passe afin de récupérer l'accès à mon compte.                                      | Must Have   |
-| US-05 | Gestion du profil                | En tant que client, je veux consulter et modifier mes informations personnelles afin de maintenir mon profil à jour.                    | Must Have   |
-| US-06 | Suppression du compte            | En tant que client, je veux supprimer mon compte afin de contrôler mes données personnelles.                                            | Must Have   |
-| US-07 | Consultation des agences         | En tant qu'utilisateur, je veux consulter les agences disponibles afin de choisir un lieu de départ ou de retour.                       | Should Have |
-| US-08 | Recherche de location            | En tant qu'utilisateur, je veux rechercher une location selon mes critères afin de trouver une offre adaptée.                           | Must Have   |
-| US-09 | Filtrage et tri                  | En tant qu'utilisateur, je veux filtrer et trier les résultats afin de trouver plus facilement une offre.                               | Should Have |
-| US-10 | Détail d'une offre               | En tant que client, je veux consulter le détail d'une offre afin de décider si je souhaite la réserver.                                 | Must Have   |
-| US-11 | Classification ACRISS            | En tant que client, je veux connaître la catégorie du véhicule afin d'identifier précisément l'offre proposée.                          | Must Have   |
-| US-12 | Réservation                      | En tant que client, je veux réserver une offre disponible afin de louer un véhicule.                                                    | Must Have   |
-| US-13 | Pré-remplissage                  | En tant que client, je veux que mes informations de profil soient réutilisées lors d'une réservation afin d'éviter une ressaisie.       | Must Have   |
-| US-14 | Récapitulatif                    | En tant que client, je veux vérifier le détail et le montant de ma réservation avant paiement.                                          | Must Have   |
-| US-15 | Paiement                         | En tant que client, je veux payer via Stripe afin de finaliser ma réservation.                                                          | Must Have   |
-| US-16 | Confirmation                     | En tant que client, je veux recevoir une confirmation afin de disposer d'une preuve de ma réservation.                                  | Must Have   |
-| US-17 | Historique                       | En tant que client, je veux consulter mes réservations afin de suivre mes locations passées et futures.                                 | Must Have   |
-| US-18 | Modification                     | En tant que client, je veux modifier ma réservation afin d'adapter ma location.                                                         | Must Have   |
-| US-19 | Annulation                       | En tant que client, je veux annuler ma réservation afin de ne plus utiliser le véhicule réservé.                                        | Must Have   |
-| US-20 | Remboursement                    | En tant que client, je veux connaître le montant de mon remboursement avant d'annuler.                                                  | Must Have   |
-| US-21 | API utilisateurs                 | En tant qu'application agence, je veux gérer les utilisateurs via l'API afin de disposer des données nécessaires.                       | Must Have   |
-| US-22 | API réservations                 | En tant qu'application agence, je veux gérer les réservations via l'API afin de maintenir les informations à jour.                      | Must Have   |
-| US-23 | API offres                       | En tant qu'application agence, je veux gérer les véhicules et offres via l'API.                                                         | Must Have   |
-| US-24 | API agences                      | En tant qu'application agence, je veux gérer les agences via l'API.                                                                     | Must Have   |
-| US-25 | Authentification API             | En tant qu'application agence autorisée, je veux m'authentifier auprès de l'API afin de sécuriser les échanges.                         | Must Have   |
-| US-26 | Tchat support                    | En tant que client connecté, je veux contacter une agence via un tchat afin d'obtenir de l'assistance.                                  | Should Have |
-| US-27 | Accessibilité clavier            | En tant qu'utilisateur, je veux naviguer entièrement au clavier afin d'utiliser l'application sans souris.                              | Must Have   |
-| US-28 | Lecteurs d'écran                 | En tant qu'utilisateur utilisant une technologie d'assistance, je veux que l'application soit compatible avec les lecteurs d'écran.     | Must Have   |
-| US-29 | Internationalisation             | En tant que client international, je veux utiliser l'application dans mon contexte local afin de pouvoir effectuer une location.        | Must Have   |
-| US-30 | Sécurité et confidentialité      | En tant que client, je veux que mes données personnelles soient protégées afin d'utiliser le service en toute sécurité.                 | Must Have   |
-| US-31 | Performance                      | En tant qu'utilisateur, je veux obtenir rapidement les résultats de mes recherches afin de bénéficier d'une expérience fluide.          | Must Have   |
-| US-32 | Évolutivité et disponibilité     | En tant qu'entreprise, je veux disposer d'une application capable d'évoluer avec la croissance de l'activité.                           | Must Have   |
-| US-33 | Éco-conception                   | En tant qu'entreprise, je veux limiter l'impact environnemental de l'application afin de réduire la consommation inutile de ressources. | Should Have |
+| ID    | Epic / Domaine              | Fonctionnalité                   | User Story                                                                                                                              | Priorité    |
+| ----- | --------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| US-01 | Gestion du compte           | Création de compte               | En tant que visiteur, je veux créer un compte afin de pouvoir effectuer des réservations.                                               | Must Have   |
+| US-02 | Gestion du compte           | Authentification                 | En tant que client, je veux m'authentifier afin d'accéder à mon espace personnel.                                                       | Must Have   |
+| US-03 | Gestion du compte           | Déconnexion                      | En tant que client, je veux me déconnecter afin de protéger l'accès à mon compte.                                                       | Must Have   |
+| US-04 | Gestion du compte           | Réinitialisation du mot de passe | En tant que client, je veux réinitialiser mon mot de passe afin de récupérer l'accès à mon compte.                                      | Must Have   |
+| US-05 | Gestion du profil           | Gestion du profil                | En tant que client, je veux consulter et modifier mes informations personnelles afin de maintenir mon profil à jour.                    | Must Have   |
+| US-06 | Gestion du compte           | Suppression du compte            | En tant que client, je veux supprimer mon compte afin de contrôler mes données personnelles.                                            | Must Have   |
+| US-07 | Agences                     | Consultation des agences         | En tant qu'utilisateur, je veux consulter les agences disponibles afin de choisir un lieu de départ ou de retour.                       | Should Have |
+| US-08 | Recherche                   | Recherche de location            | En tant qu'utilisateur, je veux rechercher une location selon mes critères afin de trouver une offre adaptée.                           | Must Have   |
+| US-09 | Offres                      | Filtrage et tri                  | En tant qu'utilisateur, je veux filtrer et trier les résultats afin de trouver plus facilement une offre.                               | Should Have |
+| US-10 | Offres                      | Détail d'une offre               | En tant que client, je veux consulter le détail d'une offre afin de décider si je souhaite la réserver.                                 | Must Have   |
+| US-11 | Offres                      | Classification ACRISS            | En tant que client, je veux connaître la catégorie du véhicule afin d'identifier précisément l'offre proposée.                          | Must Have   |
+| US-12 | Réservation                 | Réservation                      | En tant que client, je veux réserver une offre disponible afin de louer un véhicule.                                                    | Must Have   |
+| US-13 | Réservation                 | Pré-remplissage                  | En tant que client, je veux que mes informations de profil soient réutilisées lors d'une réservation afin d'éviter une ressaisie.       | Must Have   |
+| US-14 | Réservation                 | Récapitulatif                    | En tant que client, je veux vérifier le détail et le montant de ma réservation avant paiement.                                          | Must Have   |
+| US-15 | Paiement                    | Paiement                         | En tant que client, je veux payer via Stripe afin de finaliser ma réservation.                                                          | Must Have   |
+| US-16 | Réservation                 | Confirmation                     | En tant que client, je veux recevoir une confirmation afin de disposer d'une preuve de ma réservation.                                  | Must Have   |
+| US-17 | Réservations                | Historique                       | En tant que client, je veux consulter mes réservations afin de suivre mes locations passées et futures.                                 | Must Have   |
+| US-18 | Réservations                | Modification                     | En tant que client, je veux modifier ma réservation afin d'adapter ma location.                                                         | Must Have   |
+| US-19 | Réservations                | Annulation                       | En tant que client, je veux annuler ma réservation afin de ne plus utiliser le véhicule réservé.                                        | Must Have   |
+| US-20 | Réservations                | Remboursement                    | En tant que client, je veux connaître le montant de mon remboursement avant d'annuler.                                                  | Must Have   |
+| US-21 | API Agences                 | API utilisateurs                 | En tant qu'application agence, je veux gérer les utilisateurs via l'API afin de disposer des données nécessaires.                       | Must Have   |
+| US-22 | API Agences                 | API réservations                 | En tant qu'application agence, je veux gérer les réservations via l'API afin de maintenir les informations à jour.                      | Must Have   |
+| US-23 | API Agences                 | API offres                       | En tant qu'application agence, je veux gérer les véhicules et offres via l'API.                                                         | Must Have   |
+| US-24 | API Agences                 | API agences                      | En tant qu'application agence, je veux gérer les agences via l'API.                                                                     | Must Have   |
+| US-25 | API Agences                 | Authentification API             | En tant qu'application agence autorisée, je veux m'authentifier auprès de l'API afin de sécuriser les échanges.                         | Must Have   |
+| US-26 | Support                     | Tchat support                    | En tant que client connecté, je veux contacter une agence via un tchat afin d'obtenir de l'assistance.                                  | Should Have |
+| US-27 | Accessibilité               | Accessibilité clavier            | En tant qu'utilisateur, je veux naviguer entièrement au clavier afin d'utiliser l'application sans souris.                              | Must Have   |
+| US-28 | Accessibilité               | Lecteurs d'écran                 | En tant qu'utilisateur utilisant une technologie d'assistance, je veux que l'application soit compatible avec les lecteurs d'écran.     | Must Have   |
+| US-29 | Internationalisation        | Internationalisation             | En tant que client international, je veux utiliser l'application dans mon contexte local afin de pouvoir effectuer une location.        | Must Have   |
+| US-30 | Sécurité                    | Sécurité et confidentialité      | En tant que client, je veux que mes données personnelles soient protégées afin d'utiliser le service en toute sécurité.                 | Must Have   |
+| US-31 | Performance                 | Performance                      | En tant qu'utilisateur, je veux obtenir rapidement les résultats de mes recherches afin de bénéficier d'une expérience fluide.          | Must Have   |
+| US-32 | Disponibilité / Évolutivité | Évolutivité et disponibilité     | En tant qu'entreprise, je veux disposer d'une application capable d'évoluer avec la croissance de l'activité.                           | Must Have   |
+| US-33 | Éco-conception              | Éco-conception                   | En tant qu'entreprise, je veux limiter l'impact environnemental de l'application afin de réduire la consommation inutile de ressources. | Should Have |
 
 ---
 
-# 30. Priorisation
+# 13. Priorisation
 
-## Must Have
+## 13.1 Must Have
 
 Les fonctionnalités indispensables au fonctionnement de la V1 sont :
 
@@ -609,18 +755,22 @@ Les fonctionnalités indispensables au fonctionnement de la V1 sont :
 * performance ;
 * évolutivité et disponibilité.
 
-## Should Have
+## 13.2 Should Have
+
+Les fonctionnalités importantes mais pouvant être priorisées après les fonctionnalités essentielles sont :
 
 * consultation enrichie des agences ;
 * filtrage et tri ;
 * tchat support ;
 * éco-conception.
 
-## Could Have
+## 13.3 Could Have
 
 Aucune fonctionnalité supplémentaire n'est retenue à ce stade.
 
-## Won't Have
+## 13.4 Won't Have
+
+Les fonctionnalités suivantes sont explicitement hors périmètre de la V1 :
 
 * application mobile native ;
 * back-office complet des employés ;
@@ -629,7 +779,7 @@ Aucune fonctionnalité supplémentaire n'est retenue à ce stade.
 
 ---
 
-# 31. Critères généraux d'acceptation
+# 14. Critères généraux d'acceptation
 
 Une fonctionnalité est considérée comme conforme lorsque :
 
@@ -645,7 +795,7 @@ Une fonctionnalité est considérée comme conforme lorsque :
 
 ---
 
-# 32. Points à préciser avant l'implémentation
+# 15. Points à préciser avant l'implémentation
 
 Certains éléments fonctionnels devront être précisés lors de la conception détaillée :
 
@@ -661,7 +811,7 @@ Ces points ne remettent pas en cause le périmètre fonctionnel ; ils devront ê
 
 ---
 
-# 33. Synthèse
+# 16. Synthèse
 
 La V1 de Your Car Your Way doit fournir une plateforme web centralisée permettant au client de réaliser l'ensemble du parcours principal :
 

@@ -190,9 +190,9 @@ Elle prend en compte :
 * les besoins métier ;
 * le contexte international.
 
-## 7.2 Personas
+## 7.2 Les quatre types d'utilisateur 
 
-### Persona 1 — Client régulier
+### Utilisatrice 1 — Client régulier
 
 **Maria, 34 ans, Barcelone**
 
@@ -214,7 +214,7 @@ Maria utilise régulièrement le service de location pour ses déplacements prof
 
 ---
 
-### Persona 2 — Client occasionnel
+### Utilisateur 2 — Client occasionnel
 
 **Thomas, 52 ans, Lyon**
 
@@ -234,7 +234,7 @@ Thomas réserve une voiture une à deux fois par an pour ses vacances.
 
 ---
 
-### Persona 3 — Utilisateur en situation de handicap
+### Utilisateur 3 — Utilisateur en situation de handicap
 
 **Amara, 29 ans, Londres**
 
@@ -255,7 +255,7 @@ Amara utilise un lecteur d'écran pour naviguer sur Internet.
 
 ---
 
-### Persona 4 — Agent en agence
+### Utilisateur 4 — Agent en agence
 
 **Kenji, 41 ans, Toronto**
 

@@ -1,0 +1,92 @@
+<div class="chat-container">
+
+  <header class="chat-header">
+
+    <div>
+
+      <h1>
+        Support Your Car Your Way
+      </h1>
+
+      @if (currentUser) {
+
+      <p>
+        Connecté en tant que
+        <strong>{{ currentUser.email }}</strong>
+      </p>
+
+      }
+
+    </div>
+
+    <span
+      class="connection-status"
+      [class.connected]="connected">
+
+    {{ connected ? 'Connecté' : 'Déconnecté' }}
+
+  </span>
+
+  </header>
+
+
+  <main
+    class="messages"
+    aria-live="polite"
+    aria-label="Messages de la conversation">
+
+    @for (message of messages; track message.id) {
+
+    <article class="message">
+
+      <div class="message-header">
+
+        <strong>
+          Utilisateur {{ message.senderId }}
+        </strong>
+
+        <time>
+          {{ message.sentAt | date:'short' }}
+        </time>
+
+      </div>
+
+      <p>
+        {{ message.content }}
+      </p>
+
+    </article>
+
+    }
+
+  </main>
+
+
+  <form
+    class="message-form"
+    (ngSubmit)="sendMessage()">
+
+    <label for="message">
+      Votre message
+    </label>
+
+    <textarea
+      id="message"
+      name="message"
+      [(ngModel)]="newMessage"
+      maxlength="2000"
+      required
+      placeholder="Écrivez votre message...">
+    </textarea>
+
+    <button
+      type="submit"
+      [disabled]="!newMessage.trim()">
+
+      Envoyer
+
+    </button>
+
+  </form>
+
+</div>

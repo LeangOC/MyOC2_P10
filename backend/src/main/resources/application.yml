@@ -1,0 +1,29 @@
+spring:
+
+  application:
+    name: ycyw-chat-poc
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ycyw_chat
+    username: ycyw
+    password: ycyw_dev
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    open-in-view: false
+
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    time-zone: UTC
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.ycyw.chatpoc: INFO

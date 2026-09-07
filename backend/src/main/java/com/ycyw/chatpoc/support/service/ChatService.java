@@ -2,6 +2,7 @@ package com.ycyw.chatpoc.support.service;
 
 import com.ycyw.chatpoc.support.dto.ChatMessageRequest;
 import com.ycyw.chatpoc.support.dto.ChatMessageResponse;
+import com.ycyw.chatpoc.support.dto.ConversationResponse;
 import com.ycyw.chatpoc.support.entity.ChatConversation;
 import com.ycyw.chatpoc.support.entity.ChatMessage;
 import com.ycyw.chatpoc.support.repository.ChatConversationRepository;
@@ -75,5 +76,45 @@ public class ChatService {
                 message.getContent(),
                 message.getSentAt()
         );
+    }
+
+    public ConversationResponse createConversation(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Utilisateur introuvable"));
+
+        ChatConversation conversation = new ChatConversation();
+        conversation.setUser(user);
+        conversation.setStatus("OPEN");
+
+        ChatConversation saved =
+                conversationRepository.save(conversation);
+
+        return new ConversationResponse(
+                saved.getId(),
+                saved.getUser().getId(),
+                saved.getStatus()
+        );
+    }
+
+    public ConversationResponse getOrCreateConversation(Long userId) {
+
+        List<ChatConversation> conversations =
+                conversationRepository
+                        .findByUserIdOrderByCreatedAtDesc(userId);
+
+        if (!conversations.isEmpty()) {
+
+            ChatConversation conversation = conversations.get(0);
+
+            return new ConversationResponse(
+                    conversation.getId(),
+                    conversation.getUser().getId(),
+                    conversation.getStatus()
+            );
+        }
+
+        return createConversation(userId);
     }
 }

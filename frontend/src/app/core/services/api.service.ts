@@ -3,9 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ChatMessage } from '../../chat/chat.service';
 
+export interface Conversation {
+  id: number;
+  userId: number;
+  status: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
+
+
 export class ApiService {
 
   private readonly apiUrl = 'http://localhost:8080/api';
@@ -21,4 +29,23 @@ export class ApiService {
       `${this.apiUrl}/support/conversations/${conversationId}/messages`
     );
   }
+
+
+
+createOrGetConversation(userId: number) {
+  return this.http.post<Conversation>(
+    `${this.apiUrl}/support/conversations`,
+    null,
+    {
+      params: {
+        userId
+      }
+    }
+  );
 }
+
+}
+
+
+
+

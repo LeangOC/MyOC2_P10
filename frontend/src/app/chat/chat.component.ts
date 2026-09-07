@@ -50,7 +50,7 @@ export class ChatComponent implements OnInit, OnDestroy {
    * serait récupéré depuis le backend après
    * authentification.
    */
-  conversationId = 1;
+  conversationId: number | null = null;
 
   /**
    * Utilisateur actuellement connecté.
@@ -104,18 +104,32 @@ export class ChatComponent implements OnInit, OnDestroy {
       return;
     }
 
-    /*
-     * Récupération des anciens messages.
-     */
-    this.loadHistory();
+   this.apiService
+     .createOrGetConversation(this.currentUser.userId)
+     .subscribe({
+       next: conversation => {
 
-    /*
-     * Connexion au serveur WebSocket/STOMP.
-     */
-    this.chatService.connect(
-      this.conversationId
-    );
+         this.conversationId = conversation.id;
 
+         this.loadHistory();
+
+         this.chatService.connect(this.conversationId);
+
+         this.chatService.messages$
+           .subscribe(message => {
+             this.messages.push(message);
+           });
+
+         this.connected = true;
+       },
+
+       error: error => {
+         console.error(
+           'Erreur lors de la récupération de la conversation :',
+           error
+         );
+       }
+     });
     /*
      * Écoute des nouveaux messages reçus
      * en temps réel.
@@ -136,25 +150,22 @@ export class ChatComponent implements OnInit, OnDestroy {
    */
   loadHistory(): void {
 
+    if (this.conversationId === null) {
+      return;
+    }
+
     this.apiService
       .getMessages(this.conversationId)
       .subscribe({
-
         next: messages => {
-
           this.messages = messages;
-
         },
-
         error: error => {
-
           console.error(
             'Erreur lors de la récupération de l’historique :',
             error
           );
-
         }
-
       });
   }
 
@@ -163,51 +174,24 @@ export class ChatComponent implements OnInit, OnDestroy {
    */
   sendMessage(): void {
 
-    const content =
-      this.newMessage.trim();
+    const content = this.newMessage.trim();
 
-    /*
-     * Ne rien envoyer si le message est vide.
-     */
     if (!content) {
       return;
     }
 
-    /*
-     * Sécurité supplémentaire :
-     * l'utilisateur doit être connecté.
-     */
-    if (!this.currentUser) {
-
-      this.router.navigate(['/login']);
-
+    if (!this.currentUser || this.conversationId === null) {
       return;
     }
 
-    /*
-     * Envoi du message via WebSocket/STOMP.
-     *
-     * L'identifiant de l'expéditeur provient
-     * maintenant de l'utilisateur connecté.
-     */
     this.chatService.sendMessage({
-
-      conversationId:
-        this.conversationId,
-
-      senderId:
-        this.currentUser.userId,
-
+      conversationId: this.conversationId,
+      senderId: this.currentUser.userId,
       content
-
     });
 
-    /*
-     * Nettoyage du champ de saisie.
-     */
     this.newMessage = '';
   }
-
   /**
    * Déconnexion de l'utilisateur.
    */

@@ -1,6 +1,7 @@
 package com.ycyw.chatpoc.support.controller;
 
 import com.ycyw.chatpoc.support.dto.ChatMessageResponse;
+import com.ycyw.chatpoc.support.dto.ConversationResponse;
 import com.ycyw.chatpoc.support.service.ChatService;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/support")
 @CrossOrigin(origins = "http://localhost:4200")
+
 public class ChatRestController {
 
     private final ChatService chatService;
@@ -22,5 +24,11 @@ public class ChatRestController {
             @PathVariable Long conversationId) {
 
         return chatService.getMessages(conversationId);
+    }
+    @PostMapping("/conversations")
+    public ConversationResponse getOrCreateConversation(
+            @RequestParam Long userId) {
+
+        return chatService.getOrCreateConversation(userId);
     }
 }

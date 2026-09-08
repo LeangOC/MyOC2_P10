@@ -3,15 +3,22 @@ package com.ycyw.chatpoc.support.dto;
 public class ConversationResponse {
 
     private Long id;
-    private Long userId;
+    private Long customerId;
+    private Long supportId;
     private String status;
 
     public ConversationResponse() {
     }
 
-    public ConversationResponse(Long id, Long userId, String status) {
+    public ConversationResponse(
+            Long id,
+            Long customerId,
+            Long supportId,
+            String status
+    ) {
         this.id = id;
-        this.userId = userId;
+        this.customerId = customerId;
+        this.supportId = supportId;
         this.status = status;
     }
 
@@ -19,8 +26,12 @@ public class ConversationResponse {
         return id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public Long getSupportId() {
+        return supportId;
     }
 
     public String getStatus() {

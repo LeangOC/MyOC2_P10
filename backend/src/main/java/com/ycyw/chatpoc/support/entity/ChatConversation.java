@@ -15,15 +15,17 @@ public class ChatConversation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(nullable = false, length = 30)
     private String status;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private User customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "support_id")
+    private User support;
 
     @OneToMany(
             mappedBy = "conversation",
@@ -40,11 +42,6 @@ public class ChatConversation {
     public ChatConversation() {
     }
 
-    public ChatConversation(User user, String status) {
-        this.user = user;
-        this.status = status;
-    }
-
     public Long getId() {
         return id;
     }
@@ -57,29 +54,32 @@ public class ChatConversation {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public User getCustomer() {
+        return customer;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public User getSupport() {
+        return support;
     }
 
     public List<ChatMessage> getMessages() {
         return messages;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setCustomer(User customer) {
+        this.customer = customer;
+    }
+
+    public void setSupport(User support) {
+        this.support = support;
+    }
+
     public void addMessage(ChatMessage message) {
         messages.add(message);
         message.setConversation(this);
-    }
-
-    public void removeMessage(ChatMessage message) {
-        messages.remove(message);
-        message.setConversation(null);
     }
 }

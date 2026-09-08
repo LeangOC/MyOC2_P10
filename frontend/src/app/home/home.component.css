@@ -1,0 +1,39 @@
+.home {
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.home-header h1 {
+  margin: 0;
+}
+
+.home-header button {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+}
+
+.home-content {
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.home-content h2 {
+  margin-bottom: 1rem;
+}
+
+.support-button {
+  margin-top: 2rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}

@@ -33,17 +33,22 @@ public class ChatService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Envoie et sauvegarde un message dans une conversation.
+     */
     public ChatMessageResponse sendMessage(ChatMessageRequest request) {
 
         ChatConversation conversation = conversationRepository
                 .findById(request.getConversationId())
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Conversation introuvable"));
+                        new IllegalArgumentException(
+                                "Conversation introuvable"));
 
         User sender = userRepository
                 .findById(request.getSenderId())
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Utilisateur introuvable"));
+                        new IllegalArgumentException(
+                                "Utilisateur introuvable"));
 
         ChatMessage message = new ChatMessage();
 
@@ -52,13 +57,18 @@ public class ChatService {
         message.setContent(request.getContent());
         message.setSentAt(Instant.now());
 
-        ChatMessage savedMessage = messageRepository.save(message);
+        ChatMessage savedMessage =
+                messageRepository.save(message);
 
         return toResponse(savedMessage);
     }
 
+    /**
+     * Récupère l'historique des messages d'une conversation.
+     */
     @Transactional(readOnly = true)
-    public List<ChatMessageResponse> getMessages(Long conversationId) {
+    public List<ChatMessageResponse> getMessages(
+            Long conversationId) {
 
         return messageRepository
                 .findByConversationIdOrderBySentAtAsc(conversationId)
@@ -67,7 +77,108 @@ public class ChatService {
                 .toList();
     }
 
-    private ChatMessageResponse toResponse(ChatMessage message) {
+    /**
+     * Crée une nouvelle conversation entre un client
+     * et le premier conseiller support disponible.
+     *
+     * Un message d'accueil est automatiquement créé
+     * par le conseiller.
+     */
+    public ConversationResponse createCustomerConversation(
+            Long customerId) {
+
+        User customer = userRepository
+                .findById(customerId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Client introuvable"));
+
+        User support = userRepository
+                .findFirstByRole("SUPPORT")
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Aucun conseiller support disponible"));
+
+        ChatConversation conversation =
+                new ChatConversation();
+
+        conversation.setCustomer(customer);
+        conversation.setSupport(support);
+        conversation.setStatus("OPEN");
+
+        ChatConversation savedConversation =
+                conversationRepository.save(conversation);
+
+        /*
+         * Message automatique du conseiller support.
+         */
+        ChatMessage greeting = new ChatMessage();
+
+        greeting.setConversation(savedConversation);
+        greeting.setSender(support);
+        greeting.setContent(
+                "Bonjour "
+                        + getCustomerName(customer)
+                        + ", que puis-je faire pour vous ?"
+        );
+        greeting.setSentAt(Instant.now());
+
+        messageRepository.save(greeting);
+
+        return toConversationResponse(savedConversation);
+    }
+
+    /**
+     * Récupère la conversation ouverte du client.
+     *
+     * Si aucune conversation n'existe, une nouvelle
+     * conversation est créée avec un conseiller support.
+     */
+    public ConversationResponse getOrCreateCustomerConversation(
+            Long customerId) {
+
+        List<ChatConversation> conversations =
+                conversationRepository
+                        .findByCustomerIdOrderByCreatedAtDesc(
+                                customerId);
+
+        /*
+         * On recherche en priorité une conversation ouverte.
+         */
+        for (ChatConversation conversation : conversations) {
+
+            if ("OPEN".equals(conversation.getStatus())) {
+
+                return toConversationResponse(conversation);
+            }
+        }
+
+        /*
+         * Aucune conversation ouverte :
+         * création d'une nouvelle conversation.
+         */
+        return createCustomerConversation(customerId);
+    }
+
+    /**
+     * Récupère les conversations d'un conseiller support.
+     */
+    @Transactional(readOnly = true)
+    public List<ConversationResponse> getSupportConversations(
+            Long supportId) {
+
+        return conversationRepository
+                .findBySupportIdOrderByCreatedAtDesc(supportId)
+                .stream()
+                .map(this::toConversationResponse)
+                .toList();
+    }
+
+    /**
+     * Convertit une entité ChatMessage en DTO.
+     */
+    private ChatMessageResponse toResponse(
+            ChatMessage message) {
 
         return new ChatMessageResponse(
                 message.getId(),
@@ -78,43 +189,41 @@ public class ChatService {
         );
     }
 
-    public ConversationResponse createConversation(Long userId) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Utilisateur introuvable"));
-
-        ChatConversation conversation = new ChatConversation();
-        conversation.setUser(user);
-        conversation.setStatus("OPEN");
-
-        ChatConversation saved =
-                conversationRepository.save(conversation);
+    /**
+     * Convertit une entité ChatConversation en DTO.
+     */
+    private ConversationResponse toConversationResponse(
+            ChatConversation conversation) {
 
         return new ConversationResponse(
-                saved.getId(),
-                saved.getUser().getId(),
-                saved.getStatus()
+                conversation.getId(),
+                conversation.getCustomer().getId(),
+                conversation.getSupport() != null
+                        ? conversation.getSupport().getId()
+                        : null,
+                conversation.getStatus()
         );
     }
 
-    public ConversationResponse getOrCreateConversation(Long userId) {
+    /**
+     * Récupère le nom affiché du client.
+     *
+     * Pour l'instant, le PoC utilise l'email.
+     * Lorsque Profile sera intégré au PoC,
+     * cette méthode pourra retourner le prénom.
+     */
+    private String getCustomerName(User customer) {
 
-        List<ChatConversation> conversations =
-                conversationRepository
-                        .findByUserIdOrderByCreatedAtDesc(userId);
+        if (customer.getEmail() == null ||
+                customer.getEmail().isBlank()) {
 
-        if (!conversations.isEmpty()) {
-
-            ChatConversation conversation = conversations.get(0);
-
-            return new ConversationResponse(
-                    conversation.getId(),
-                    conversation.getUser().getId(),
-                    conversation.getStatus()
-            );
+            return "client";
         }
 
-        return createConversation(userId);
+        return customer.getEmail()
+                .substring(
+                        0,
+                        customer.getEmail().indexOf("@")
+                );
     }
 }

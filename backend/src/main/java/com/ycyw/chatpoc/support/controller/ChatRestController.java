@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/support")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4000")
 
 public class ChatRestController {
 
@@ -26,9 +26,9 @@ public class ChatRestController {
         return chatService.getMessages(conversationId);
     }
     @PostMapping("/conversations")
-    public ConversationResponse getOrCreateConversation(
-            @RequestParam Long userId) {
-
-        return chatService.getOrCreateConversation(userId);
+    public ConversationResponse createConversation(
+            @RequestParam Long customerId
+    ) {
+        return chatService.createCustomerConversation(customerId);
     }
 }

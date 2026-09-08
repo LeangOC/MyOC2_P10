@@ -44,6 +44,18 @@ createOrGetConversation(userId: number) {
   );
 }
 
+createCustomerConversation(customerId: number) {
+  return this.http.post<Conversation>(
+    `${this.apiUrl}/support/conversations`,
+    null,
+    {
+      params: {
+        customerId
+      }
+    }
+  );
+}
+
 }
 
 

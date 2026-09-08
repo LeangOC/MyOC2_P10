@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 export interface ChatMessage {
   id: number;
@@ -28,7 +28,23 @@ export class ChatService {
   messages$: Observable<ChatMessage> =
     this.messageSubject.asObservable();
 
+  /**
+   * Indique si la connexion WebSocket/STOMP est réellement établie.
+   */
+  private connectedSubject = new BehaviorSubject<boolean>(false);
+
+  connected$: Observable<boolean> =
+    this.connectedSubject.asObservable();
+
   connect(conversationId: number): void {
+
+    // Évite de créer plusieurs connexions
+    if (this.client?.active) {
+      console.log('WebSocket déjà actif');
+      return;
+    }
+
+    this.connectedSubject.next(false);
 
     this.client = new Client({
       brokerURL: 'ws://localhost:8080/ws-chat',
@@ -40,9 +56,14 @@ export class ChatService {
       }
     });
 
+    /**
+     * Connexion STOMP réellement établie.
+     */
     this.client.onConnect = () => {
 
       console.log('WebSocket connecté');
+
+      this.connectedSubject.next(true);
 
       this.client?.subscribe(
         `/topic/conversations/${conversationId}`,
@@ -51,11 +72,16 @@ export class ChatService {
           const chatMessage: ChatMessage =
             JSON.parse(message.body);
 
+          console.log('Message reçu :', chatMessage);
+
           this.messageSubject.next(chatMessage);
         }
       );
     };
 
+    /**
+     * Erreur STOMP.
+     */
     this.client.onStompError = (frame) => {
 
       console.error(
@@ -63,11 +89,31 @@ export class ChatService {
         frame.headers['message'],
         frame.body
       );
+
+      this.connectedSubject.next(false);
     };
 
+    /**
+     * Erreur WebSocket.
+     */
     this.client.onWebSocketError = (error) => {
 
-      console.error('Erreur WebSocket:', error);
+      console.error(
+        'Erreur WebSocket:',
+        error
+      );
+
+      this.connectedSubject.next(false);
+    };
+
+    /**
+     * Déconnexion.
+     */
+    this.client.onDisconnect = () => {
+
+      console.log('WebSocket déconnecté');
+
+      this.connectedSubject.next(false);
     };
 
     this.client.activate();
@@ -77,10 +123,14 @@ export class ChatService {
 
     if (!this.client?.connected) {
 
-      console.error('WebSocket non connecté');
+      console.error(
+        'Impossible d’envoyer le message : WebSocket non connecté'
+      );
 
       return;
     }
+
+    console.log('Envoi du message :', request);
 
     this.client.publish({
       destination: '/app/chat',
@@ -91,8 +141,12 @@ export class ChatService {
   disconnect(): void {
 
     if (this.client) {
+
       this.client.deactivate();
+
       this.client = null;
     }
+
+    this.connectedSubject.next(false);
   }
 }

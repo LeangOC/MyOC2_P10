@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
@@ -28,13 +28,15 @@ export class ChatService {
   messages$: Observable<ChatMessage> =
     this.messageSubject.asObservable();
 
-  /**
-   * Indique si la connexion WebSocket/STOMP est réellement établie.
-   */
-  private connectedSubject = new BehaviorSubject<boolean>(false);
+  private connectedSubject =
+    new BehaviorSubject<boolean>(false);
 
   connected$: Observable<boolean> =
     this.connectedSubject.asObservable();
+
+  constructor(
+    private ngZone: NgZone
+  ) {}
 
   connect(conversationId: number): void {
 
@@ -47,6 +49,7 @@ export class ChatService {
     this.connectedSubject.next(false);
 
     this.client = new Client({
+
       brokerURL: 'ws://localhost:8080/ws-chat',
 
       reconnectDelay: 5000,
@@ -56,7 +59,7 @@ export class ChatService {
       }
     });
 
-    /**
+    /*
      * Connexion STOMP réellement établie.
      */
     this.client.onConnect = () => {
@@ -67,19 +70,36 @@ export class ChatService {
 
       this.client?.subscribe(
         `/topic/conversations/${conversationId}`,
+
         (message: IMessage) => {
 
           const chatMessage: ChatMessage =
             JSON.parse(message.body);
 
-          console.log('Message reçu :', chatMessage);
+          console.log(
+            'Message reçu :',
+            chatMessage
+          );
 
-          this.messageSubject.next(chatMessage);
+          /*
+           * Le callback STOMP/WebSocket peut être exécuté
+           * en dehors de la zone Angular.
+           *
+           * On force donc Angular à détecter
+           * la modification de l'état.
+           */
+          this.ngZone.run(() => {
+
+            this.messageSubject.next(
+              chatMessage
+            );
+
+          });
         }
       );
     };
 
-    /**
+    /*
      * Erreur STOMP.
      */
     this.client.onStompError = (frame) => {
@@ -93,7 +113,7 @@ export class ChatService {
       this.connectedSubject.next(false);
     };
 
-    /**
+    /*
      * Erreur WebSocket.
      */
     this.client.onWebSocketError = (error) => {
@@ -106,12 +126,14 @@ export class ChatService {
       this.connectedSubject.next(false);
     };
 
-    /**
+    /*
      * Déconnexion.
      */
     this.client.onDisconnect = () => {
 
-      console.log('WebSocket déconnecté');
+      console.log(
+        'WebSocket déconnecté'
+      );
 
       this.connectedSubject.next(false);
     };
@@ -119,7 +141,9 @@ export class ChatService {
     this.client.activate();
   }
 
-  sendMessage(request: ChatMessageRequest): void {
+  sendMessage(
+    request: ChatMessageRequest
+  ): void {
 
     if (!this.client?.connected) {
 
@@ -130,11 +154,17 @@ export class ChatService {
       return;
     }
 
-    console.log('Envoi du message :', request);
+    console.log(
+      'Envoi du message :',
+      request
+    );
 
     this.client.publish({
+
       destination: '/app/chat',
+
       body: JSON.stringify(request)
+
     });
   }
 

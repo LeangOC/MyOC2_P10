@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -29,16 +30,28 @@ export class ChatComponent implements OnInit, OnDestroy {
     private chatService: ChatService,
     private apiService: ApiService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   isMyMessage(message: ChatMessage): boolean {
     return message.senderId === this.currentUser?.userId;
   }
 
-  getSenderLabel(message: ChatMessage): string {
-    return this.isMyMessage(message) ? 'Client' : 'Support';
-  }
+ getSenderLabel(message: ChatMessage): string {
+
+   if (!this.currentUser) {
+     return '';
+   }
+
+   return this.isMyMessage(message)
+     ? this.currentUser.role === 'SUPPORT'
+       ? 'Support'
+       : 'Client'
+     : this.currentUser.role === 'SUPPORT'
+       ? 'Client'
+       : 'Support';
+ }
 
   ngOnInit(): void {
 
@@ -83,6 +96,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             'Message ajouté à la conversation :',
             message
           );
+        this.cdr.detectChanges();
         }
       })
     );

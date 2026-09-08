@@ -31,4 +31,10 @@ public class ChatRestController {
     ) {
         return chatService.createCustomerConversation(customerId);
     }
+    @GetMapping("/conversations")
+    public List<ConversationResponse> getSupportConversations(
+            @RequestParam Long supportId
+    ) {
+        return chatService.getSupportConversations(supportId);
+    }
 }

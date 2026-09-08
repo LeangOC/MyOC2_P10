@@ -4,9 +4,10 @@ import { Observable } from 'rxjs';
 import { ChatMessage } from '../../chat/chat.service';
 
 export interface Conversation {
-  id: number;
-  userId: number;
-  status: string;
+ id: number;
+   customerId: number;
+   supportId: number;
+   status: string;
 }
 
 @Injectable({
@@ -18,8 +19,7 @@ export class ApiService {
 
   private readonly apiUrl = 'http://localhost:8080/api';
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   getMessages(
     conversationId: number
@@ -30,33 +30,30 @@ export class ApiService {
     );
   }
 
-
-
-createOrGetConversation(userId: number) {
-  return this.http.post<Conversation>(
-    `${this.apiUrl}/support/conversations`,
-    null,
-    {
-      params: {
-        userId
+  createCustomerConversation(customerId: number) {
+    return this.http.post<Conversation>(
+      `${this.apiUrl}/support/conversations`,
+      null,
+      {
+        params: {
+          customerId
+        }
       }
-    }
-  );
-}
+    );
+  }
 
-createCustomerConversation(customerId: number) {
-  return this.http.post<Conversation>(
-    `${this.apiUrl}/support/conversations`,
-    null,
-    {
-      params: {
-        customerId
+  getSupportConversations(supportId: number) {
+    return this.http.get<Conversation[]>(
+      `${this.apiUrl}/support/conversations`,
+      {
+        params: {
+          supportId
+        }
       }
-    }
-  );
+    );
+  }
 }
 
-}
 
 
 

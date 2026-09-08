@@ -18,12 +18,14 @@
       Que souhaitez-vous faire ?
     </p>
 
+    @if (currentUser?.role === 'CUSTOMER') {
     <button
       type="button"
       class="support-button"
       (click)="contactSupport()">
       Contacter un support
     </button>
+    }
 
   </section>
 

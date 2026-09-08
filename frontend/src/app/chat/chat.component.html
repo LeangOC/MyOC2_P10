@@ -28,19 +28,28 @@
     aria-label="Messages de la conversation">
     @for (message of messages; track message.id) {
 
-    <article class="message">
-      <div class="message-header">
-        <strong>
-          Utilisateur {{ message.senderId }}
-        </strong>
-        <time>
-          {{ message.sentAt | date:'short' }}
-        </time>
-      </div>
+    <article
+      class="message-row"
+      [class.my-message]="isMyMessage(message)"
+      [class.other-message]="!isMyMessage(message)">
 
-      <p>
-        {{ message.content }}
-      </p>
+      <div class="message">
+        <!-- Entête du message -->
+        <div class="message-header">
+          <strong>
+            {{ getSenderLabel(message) }}
+          </strong>
+        </div>
+
+        <div class="message-content">
+          {{ message.content }}
+        </div>
+
+        <div class="message-time">
+          {{ message.sentAt | date:'HH:mm' }}
+        </div>
+
+      </div>
 
     </article>
 

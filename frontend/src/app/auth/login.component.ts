@@ -43,11 +43,22 @@ export class LoginComponent {
       })
       .subscribe({
 
-        next: () => {
+        next: response => {
 
           this.loading = false;
 
-          this.router.navigate(['/home']);
+          /*
+           * Redirection selon le rôle.
+           */
+          if (response.role === 'SUPPORT') {
+
+            this.router.navigate(['/chat']);
+
+          } else {
+
+            this.router.navigate(['/home']);
+
+          }
         },
 
         error: error => {

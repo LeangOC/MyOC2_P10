@@ -26,26 +26,73 @@
   border: 1px solid #ccc;
   padding: 15px;
   margin-bottom: 20px;
-}
 
-.message {
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  background: #f5f5f5;
-}
-
-.message-header {
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  font-size: 0.9rem;
+  flex-direction: column;
+  gap: 8px;
+
+  background: #ffffff;
 }
 
-.message p {
-  margin-bottom: 0;
+/* Ligne contenant un message */
+.message-row {
+  display: flex;
+  width: 100%;
 }
 
+/* Message de l'utilisateur connecté */
+.message-row.my-message {
+  justify-content: flex-end;
+}
+
+/* Message de l'autre utilisateur */
+.message-row.other-message {
+  justify-content: flex-start;
+}
+
+/* Bulle */
+.message {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Ma bulle */
+.my-message .message {
+  background: #3564c9;
+  color: white;
+
+  border-bottom-right-radius: 3px;
+}
+
+/* Bulle de l'autre utilisateur */
+.other-message .message {
+  background: #f1f1f1;
+  color: #222;
+
+  border-bottom-left-radius: 3px;
+}
+.message-header {
+  font-size: 0.8rem;
+  margin-bottom: 3px;
+}
+/* Contenu */
+.message-content {
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* Heure */
+.message-time {
+  font-size: 0.7rem;
+  opacity: 0.75;
+  align-self: flex-end;
+}
+
+/* Formulaire */
 .message-form {
   display: flex;
   flex-direction: column;

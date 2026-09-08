@@ -16,6 +16,7 @@ import { AuthService, LoginResponse } from '../auth/auth.service';
   styleUrl: './chat.component.css'
 })
 export class ChatComponent implements OnInit, OnDestroy {
+
   conversationId: number | null = null;
   currentUser: LoginResponse | null = null;
   messages: ChatMessage[] = [];
@@ -31,9 +32,18 @@ export class ChatComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
+  isMyMessage(message: ChatMessage): boolean {
+    return message.senderId === this.currentUser?.userId;
+  }
+
+  getSenderLabel(message: ChatMessage): string {
+    return this.isMyMessage(message) ? 'Client' : 'Support';
+  }
+
   ngOnInit(): void {
 
     this.currentUser = this.authService.getCurrentUser();
+
     if (!this.currentUser) {
       this.router.navigate(['/login']);
       return;
@@ -45,6 +55,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.chatService.connected$.subscribe(
         connected => {
+
           this.connected = connected;
 
           console.log(
@@ -63,7 +74,10 @@ export class ChatComponent implements OnInit, OnDestroy {
 
         if (message.conversationId === this.conversationId) {
 
-           this.messages = [...this.messages, message];
+          this.messages = [
+            ...this.messages,
+            message
+          ];
 
           console.log(
             'Message ajouté à la conversation :',
@@ -74,34 +88,108 @@ export class ChatComponent implements OnInit, OnDestroy {
     );
 
     /*
-     * Récupère ou crée la conversation du client.
+     * Récupération de la conversation selon le rôle.
      */
-    this.apiService
-      .createCustomerConversation(this.currentUser.userId)
-      .subscribe({
+    if (this.currentUser.role === 'CUSTOMER') {
 
-        next: conversation => {
+      /*
+       * CUSTOMER :
+       * crée ou récupère sa conversation.
+       */
+      this.apiService
+        .createCustomerConversation(this.currentUser.userId)
+        .subscribe({
 
-          this.conversationId = conversation.id;
+          next: conversation => {
 
-          console.log(
-            'Conversation utilisée :',
-            this.conversationId
-          );
+            console.log(
+              'Conversation client récupérée :',
+              conversation
+            );
 
-          this.loadHistory();
+            this.connectToConversation(conversation.id);
+          },
 
-          this.chatService.connect(this.conversationId);
-        },
+          error: error => {
 
-        error: error => {
+            console.error(
+              'Erreur lors de la récupération de la conversation client :',
+              error
+            );
+          }
+        });
 
-          console.error(
-            'Erreur lors de la récupération de la conversation :',
-            error
-          );
-        }
-      });
+    } else if (this.currentUser.role === 'SUPPORT') {
+
+      /*
+       * SUPPORT :
+       * récupère les conversations qui lui sont attribuées.
+       */
+      this.apiService
+        .getSupportConversations(this.currentUser.userId)
+        .subscribe({
+
+          next: conversations => {
+
+            console.log(
+              'Conversations du support :',
+              conversations
+            );
+
+            /*
+             * Aucune conversation disponible.
+             */
+            if (conversations.length === 0) {
+
+              console.log(
+                'Aucune conversation disponible pour ce support.'
+              );
+
+              return;
+            }
+
+            /*
+             * Pour l'instant, on ouvre la première conversation.
+             *
+             * Dans ton exemple :
+             * conversationId = 24
+             */
+            const conversation = conversations[0];
+
+            console.log(
+              'Conversation support sélectionnée :',
+              conversation
+            );
+
+            this.connectToConversation(conversation.id);
+          },
+
+          error: error => {
+
+            console.error(
+              'Erreur lors de la récupération des conversations support :',
+              error
+            );
+          }
+        });
+    }
+  }
+
+  /*
+   * Configure la conversation puis connecte le WebSocket.
+   */
+  private connectToConversation(conversationId: number): void {
+
+    this.conversationId = conversationId;
+
+    console.log(
+      'Conversation utilisée :',
+      this.conversationId
+    );
+
+    this.loadHistory();
+
+    this.chatService.connect(this.conversationId);
   }
 
   loadHistory(): void {
@@ -115,7 +203,9 @@ export class ChatComponent implements OnInit, OnDestroy {
       .subscribe({
 
         next: messages => {
+
           this.messages = messages;
+
         },
 
         error: error => {

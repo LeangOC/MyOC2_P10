@@ -1,5 +1,6 @@
 package com.ycyw.chatpoc.support.controller;
 
+import com.ycyw.chatpoc.support.dto.ChatConversationLeaveRequest;
 import com.ycyw.chatpoc.support.dto.ChatMessageRequest;
 import com.ycyw.chatpoc.support.dto.ChatMessageResponse;
 import com.ycyw.chatpoc.support.service.ChatService;
@@ -21,6 +22,9 @@ public class ChatWebSocketController {
         this.messagingTemplate = messagingTemplate;
     }
 
+    /**
+     * Réception d'un message envoyé par un utilisateur.
+     */
     @MessageMapping("/chat")
     public void sendMessage(ChatMessageRequest request) {
 
@@ -28,8 +32,23 @@ public class ChatWebSocketController {
                 chatService.sendMessage(request);
 
         messagingTemplate.convertAndSend(
-                "/topic/conversations/" + response.getConversationId(),
+                "/topic/conversations/"
+                        + response.getConversationId(),
                 response
+        );
+    }
+
+    /**
+     * L'utilisateur quitte la conversation.
+     *
+     * La conversation passe de OPEN à CLOSE.
+     */
+    @MessageMapping("/chat/leave")
+    public void leaveConversation(
+            ChatConversationLeaveRequest request) {
+
+        chatService.closeConversation(
+                request.getConversationId()
         );
     }
 }

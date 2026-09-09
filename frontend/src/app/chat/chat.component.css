@@ -113,3 +113,22 @@ button {
 button:disabled {
   cursor: not-allowed;
 }
+.chat-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.quit-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.quit-button:hover {
+  background-color: #bb2d3b;
+}

@@ -273,6 +273,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   logout(): void {
 
+    this.chatService.leaveConversation();
     this.chatService.disconnect();
 
     this.authService.logout();

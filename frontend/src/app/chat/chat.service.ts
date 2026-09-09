@@ -25,6 +25,8 @@ export class ChatService {
 
   private client: Client | null = null;
 
+  private currentConversationId: number | null = null;
+
   private messageSubject = new Subject<ChatMessage>();
 
   messages$: Observable<ChatMessage> =
@@ -42,7 +44,10 @@ export class ChatService {
 
   connect(conversationId: number): void {
 
-    // Évite de créer plusieurs connexions
+    // Mémorise la conversation actuellement ouverte.
+    this.currentConversationId = conversationId;
+
+    // Évite de créer plusieurs connexions.
     if (this.client?.active) {
       console.log('WebSocket déjà actif');
       return;
@@ -143,6 +148,44 @@ export class ChatService {
     this.client.activate();
   }
 
+  /*
+   * Informe le backend que l'utilisateur quitte
+   * la conversation.
+   */leaveConversation(): void {
+
+       if (!this.client?.connected) {
+
+         console.warn(
+           'Impossible de quitter la conversation : WebSocket non connecté'
+         );
+
+         return;
+       }
+
+       if (this.currentConversationId === null) {
+
+         console.warn(
+           'Impossible de quitter la conversation : conversation inconnue'
+         );
+
+         return;
+       }
+
+       console.log(
+         'Départ de la conversation :',
+         this.currentConversationId
+       );
+
+       this.client.publish({
+
+         destination: '/app/chat/leave',
+
+         body: JSON.stringify({
+           conversationId: this.currentConversationId
+         })
+       });
+     }
+
   sendMessage(
     request: ChatMessageRequest
   ): void {
@@ -178,6 +221,8 @@ export class ChatService {
 
       this.client = null;
     }
+
+    this.currentConversationId = null;
 
     this.connectedSubject.next(false);
   }

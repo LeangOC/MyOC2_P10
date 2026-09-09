@@ -13,12 +13,20 @@
       }
 
     </div>
-
+    <div class="chat-actions">
     <span
       class="connection-status"
       [class.connected]="connected">
     {{ connected ? 'Connecté' : 'Déconnecté' }}
   </span>
+      <button
+        type="button"
+        class="quit-button"
+        (click)="logout()">
+        Quitter
+      </button>
+
+    </div>
   </header>
 
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -26,7 +26,8 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
   }
 
@@ -72,6 +73,7 @@ export class LoginComponent {
 
           this.errorMessage =
             'Email ou mot de passe incorrect.';
+           this.cdr.detectChanges();
         }
       });
   }

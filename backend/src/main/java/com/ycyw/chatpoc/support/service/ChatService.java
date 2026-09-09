@@ -64,6 +64,25 @@ public class ChatService {
     }
 
     /**
+     * Ferme une conversation.
+     */
+    public void closeConversation(Long conversationId) {
+
+        ChatConversation conversation = conversationRepository
+                .findById(conversationId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Conversation introuvable"));
+
+        if ("OPEN".equals(conversation.getStatus())) {
+
+            conversation.setStatus("CLOSE");
+
+            conversationRepository.save(conversation);
+        }
+    }
+
+    /**
      * Récupère l'historique des messages d'une conversation.
      */
     @Transactional(readOnly = true)
@@ -192,7 +211,6 @@ public class ChatService {
                 message.getSentAt()
         );
     }
-
 
     /**
      * Convertit une entité ChatConversation en DTO.

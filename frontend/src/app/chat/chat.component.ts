@@ -38,20 +38,19 @@ export class ChatComponent implements OnInit, OnDestroy {
     return message.senderId === this.currentUser?.userId;
   }
 
- getSenderLabel(message: ChatMessage): string {
+  getSenderLabel(message: ChatMessage): string {
 
-   if (!this.currentUser) {
-     return '';
-   }
+    if (message.senderRole === 'CUSTOMER') {
+      return `Client ${message.senderEmail}`;
+    }
 
-   return this.isMyMessage(message)
-     ? this.currentUser.role === 'SUPPORT'
-       ? 'Support'
-       : 'Client'
-     : this.currentUser.role === 'SUPPORT'
-       ? 'Client'
-       : 'Support';
- }
+    if (message.senderRole === 'SUPPORT') {
+      return `Support ${message.senderEmail}`;
+    }
+
+    return message.senderEmail;
+  }
+
 
   ngOnInit(): void {
 

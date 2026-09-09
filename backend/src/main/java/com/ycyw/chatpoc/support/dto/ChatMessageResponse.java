@@ -7,6 +7,8 @@ public class ChatMessageResponse {
     private Long id;
     private Long conversationId;
     private Long senderId;
+    private String senderEmail;
+    private String senderRole;
     private String content;
     private Instant sentAt;
 
@@ -17,12 +19,16 @@ public class ChatMessageResponse {
             Long id,
             Long conversationId,
             Long senderId,
+            String senderEmail,
+            String senderRole,
             String content,
             Instant sentAt) {
 
         this.id = id;
         this.conversationId = conversationId;
         this.senderId = senderId;
+        this.senderEmail = senderEmail;
+        this.senderRole = senderRole;
         this.content = content;
         this.sentAt = sentAt;
     }
@@ -37,6 +43,14 @@ public class ChatMessageResponse {
 
     public Long getSenderId() {
         return senderId;
+    }
+
+    public String getSenderEmail() {
+        return senderEmail;
+    }
+
+    public String getSenderRole() {
+        return senderRole;
     }
 
     public String getContent() {

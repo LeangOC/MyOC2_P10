@@ -180,14 +180,19 @@ public class ChatService {
     private ChatMessageResponse toResponse(
             ChatMessage message) {
 
+        User sender = message.getSender();
+
         return new ChatMessageResponse(
                 message.getId(),
                 message.getConversation().getId(),
-                message.getSender().getId(),
+                sender.getId(),
+                sender.getEmail(),
+                sender.getRole(),
                 message.getContent(),
                 message.getSentAt()
         );
     }
+
 
     /**
      * Convertit une entité ChatConversation en DTO.

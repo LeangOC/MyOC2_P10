@@ -6,6 +6,8 @@ export interface ChatMessage {
   id: number;
   conversationId: number;
   senderId: number;
+  senderEmail: string;
+  senderRole: string;
   content: string;
   sentAt: string;
 }

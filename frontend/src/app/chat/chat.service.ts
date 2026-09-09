@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
@@ -38,18 +38,15 @@ export class ChatService {
   connected$: Observable<boolean> =
     this.connectedSubject.asObservable();
 
-  constructor(
-    private ngZone: NgZone
-  ) {}
 
   connect(conversationId: number): void {
 
-    // Mémorise la conversation actuellement ouverte.
     this.currentConversationId = conversationId;
 
-    // Évite de créer plusieurs connexions.
     if (this.client?.active) {
+
       console.log('WebSocket déjà actif');
+
       return;
     }
 
@@ -62,11 +59,13 @@ export class ChatService {
       reconnectDelay: 5000,
 
       debug: (message: string) => {
+
         console.log('[STOMP]', message);
+
       }
     });
 
-    /*
+    /**
      * Connexion STOMP réellement établie.
      */
     this.client.onConnect = () => {
@@ -88,25 +87,12 @@ export class ChatService {
             chatMessage
           );
 
-          /*
-           * Le callback STOMP/WebSocket peut être exécuté
-           * en dehors de la zone Angular.
-           *
-           * On force donc Angular à détecter
-           * la modification de l'état.
-           */
-          this.ngZone.run(() => {
-
-            this.messageSubject.next(
-              chatMessage
-            );
-
-          });
+          this.messageSubject.next(chatMessage);
         }
       );
     };
 
-    /*
+    /**
      * Erreur STOMP.
      */
     this.client.onStompError = (frame) => {
@@ -120,7 +106,7 @@ export class ChatService {
       this.connectedSubject.next(false);
     };
 
-    /*
+    /**
      * Erreur WebSocket.
      */
     this.client.onWebSocketError = (error) => {
@@ -133,7 +119,7 @@ export class ChatService {
       this.connectedSubject.next(false);
     };
 
-    /*
+    /**
      * Déconnexion.
      */
     this.client.onDisconnect = () => {
@@ -148,43 +134,46 @@ export class ChatService {
     this.client.activate();
   }
 
+
   /*
    * Informe le backend que l'utilisateur quitte
    * la conversation.
-   */leaveConversation(): void {
+   */
+  leaveConversation(): void {
 
-       if (!this.client?.connected) {
+    if (!this.client?.connected) {
 
-         console.warn(
-           'Impossible de quitter la conversation : WebSocket non connecté'
-         );
+      console.warn(
+        'Impossible de quitter la conversation : WebSocket non connecté'
+      );
 
-         return;
-       }
+      return;
+    }
 
-       if (this.currentConversationId === null) {
+    if (this.currentConversationId === null) {
 
-         console.warn(
-           'Impossible de quitter la conversation : conversation inconnue'
-         );
+      console.warn(
+        'Impossible de quitter la conversation : conversation inconnue'
+      );
 
-         return;
-       }
+      return;
+    }
 
-       console.log(
-         'Départ de la conversation :',
-         this.currentConversationId
-       );
+    console.log(
+      'Départ de la conversation :',
+      this.currentConversationId
+    );
 
-       this.client.publish({
+    this.client.publish({
 
-         destination: '/app/chat/leave',
+      destination: '/app/chat/leave',
 
-         body: JSON.stringify({
-           conversationId: this.currentConversationId
-         })
-       });
-     }
+      body: JSON.stringify({
+        conversationId: this.currentConversationId
+      })
+    });
+  }
+
 
   sendMessage(
     request: ChatMessageRequest
@@ -212,6 +201,7 @@ export class ChatService {
 
     });
   }
+
 
   disconnect(): void {
 

@@ -74,6 +74,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             'État WebSocket dans ChatComponent :',
             connected ? 'Connecté' : 'Déconnecté'
           );
+        this.cdr.detectChanges();
         }
       )
     );
@@ -218,7 +219,7 @@ export class ChatComponent implements OnInit, OnDestroy {
         next: messages => {
 
           this.messages = messages;
-
+          this.cdr.detectChanges();
         },
 
         error: error => {

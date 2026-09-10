@@ -35,6 +35,8 @@ public class ChatService {
 
     /**
      * Envoie et sauvegarde un message dans une conversation.
+     *
+     * Une conversation fermée ne peut plus recevoir de message.
      */
     public ChatMessageResponse sendMessage(ChatMessageRequest request) {
 
@@ -43,6 +45,18 @@ public class ChatService {
                 .orElseThrow(() ->
                         new IllegalArgumentException(
                                 "Conversation introuvable"));
+
+        /*
+         * Une conversation fermée ne peut plus recevoir de message.
+         *
+         * Cette vérification est volontairement réalisée côté backend
+         * afin de garantir la règle métier même si le frontend tente
+         * malgré tout d'envoyer un message.
+         */
+        if (!"OPEN".equals(conversation.getStatus())) {
+            throw new IllegalStateException(
+                    "Impossible d'envoyer un message : la conversation est fermée");
+        }
 
         User sender = userRepository
                 .findById(request.getSenderId())
@@ -65,6 +79,8 @@ public class ChatService {
 
     /**
      * Ferme une conversation.
+     *
+     * Une conversation OPEN passe à CLOSE.
      */
     public void closeConversation(Long conversationId) {
 
@@ -150,8 +166,8 @@ public class ChatService {
     /**
      * Récupère la conversation ouverte du client.
      *
-     * Si aucune conversation n'existe, une nouvelle
-     * conversation est créée avec un conseiller support.
+     * Si aucune conversation ouverte n'existe,
+     * une nouvelle conversation est créée.
      */
     public ConversationResponse getOrCreateCustomerConversation(
             Long customerId) {
@@ -162,7 +178,7 @@ public class ChatService {
                                 customerId);
 
         /*
-         * On recherche en priorité une conversation ouverte.
+         * Recherche en priorité une conversation ouverte.
          */
         for (ChatConversation conversation : conversations) {
 
@@ -180,7 +196,9 @@ public class ChatService {
     }
 
     /**
-     * Récupère les conversations d'un conseiller support.
+     * Récupère les conversations ouvertes d'un conseiller support.
+     *
+     * Les conversations CLOSE ne sont volontairement pas retournées.
      */
     @Transactional(readOnly = true)
     public List<ConversationResponse> getSupportConversations(
@@ -189,6 +207,8 @@ public class ChatService {
         return conversationRepository
                 .findBySupportIdOrderByCreatedAtDesc(supportId)
                 .stream()
+                .filter(conversation ->
+                        "OPEN".equals(conversation.getStatus()))
                 .map(this::toConversationResponse)
                 .toList();
     }
@@ -231,14 +251,14 @@ public class ChatService {
     /**
      * Récupère le nom affiché du client.
      *
-     * Pour l'instant, le PoC utilise l'email.
-     * Lorsque Profile sera intégré au PoC,
+     * Pour l'instant, le POC utilise l'email.
+     * Lorsque Profile sera intégré au POC,
      * cette méthode pourra retourner le prénom.
      */
     private String getCustomerName(User customer) {
 
-        if (customer.getEmail() == null ||
-                customer.getEmail().isBlank()) {
+        if (customer.getEmail() == null
+                || customer.getEmail().isBlank()) {
 
             return "client";
         }

@@ -3,6 +3,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 export interface ChatMessage {
+
   id: number;
   conversationId: number;
   senderId: number;
@@ -13,9 +14,16 @@ export interface ChatMessage {
 }
 
 export interface ChatMessageRequest {
+
   conversationId: number;
   senderId: number;
   content: string;
+}
+
+export interface ConversationClosedEvent {
+
+  type: 'CONVERSATION_CLOSED';
+  conversationId: number;
 }
 
 @Injectable({
@@ -27,11 +35,28 @@ export class ChatService {
 
   private currentConversationId: number | null = null;
 
-  private messageSubject = new Subject<ChatMessage>();
+  /*
+   * Flux des messages de discussion.
+   */
+  private messageSubject =
+    new Subject<ChatMessage>();
 
   messages$: Observable<ChatMessage> =
     this.messageSubject.asObservable();
 
+  /*
+   * Flux des événements de fermeture
+   * de conversation.
+   */
+  private conversationClosedSubject =
+    new Subject<ConversationClosedEvent>();
+
+  conversationClosed$: Observable<ConversationClosedEvent> =
+    this.conversationClosedSubject.asObservable();
+
+  /*
+   * État réel de la connexion WebSocket.
+   */
   private connectedSubject =
     new BehaviorSubject<boolean>(false);
 
@@ -39,13 +64,23 @@ export class ChatService {
     this.connectedSubject.asObservable();
 
 
+  /**
+   * Connexion WebSocket/STOMP à une conversation.
+   */
   connect(conversationId: number): void {
 
-    this.currentConversationId = conversationId;
+    this.currentConversationId =
+      conversationId;
 
+    /*
+     * Évite de créer plusieurs connexions
+     * si le WebSocket est déjà actif.
+     */
     if (this.client?.active) {
 
-      console.log('WebSocket déjà actif');
+      console.log(
+        'WebSocket déjà actif'
+      );
 
       return;
     }
@@ -54,14 +89,17 @@ export class ChatService {
 
     this.client = new Client({
 
-      brokerURL: 'ws://localhost:8080/ws-chat',
+      brokerURL:
+        'ws://localhost:8080/ws-chat',
 
       reconnectDelay: 5000,
 
       debug: (message: string) => {
 
-        console.log('[STOMP]', message);
-
+        console.log(
+          '[STOMP]',
+          message
+        );
       }
     });
 
@@ -70,24 +108,64 @@ export class ChatService {
      */
     this.client.onConnect = () => {
 
-      console.log('WebSocket connecté');
+      console.log(
+        'WebSocket connecté'
+      );
 
       this.connectedSubject.next(true);
 
       this.client?.subscribe(
+
         `/topic/conversations/${conversationId}`,
 
         (message: IMessage) => {
 
-          const chatMessage: ChatMessage =
+          const data =
             JSON.parse(message.body);
+
+          console.log(
+            'Donnée reçue :',
+            data
+          );
+
+          /*
+           * Événement de fermeture de conversation.
+           */
+          if (
+            data.type ===
+            'CONVERSATION_CLOSED'
+          ) {
+
+            const event:
+              ConversationClosedEvent = data;
+
+            console.log(
+              'Conversation fermée :',
+              event.conversationId
+            );
+
+            this.conversationClosedSubject.next(
+              event
+            );
+
+            return;
+          }
+
+          /*
+           * Sinon, il s'agit d'un véritable
+           * message de discussion.
+           */
+          const chatMessage:
+            ChatMessage = data;
 
           console.log(
             'Message reçu :',
             chatMessage
           );
 
-          this.messageSubject.next(chatMessage);
+          this.messageSubject.next(
+            chatMessage
+          );
         }
       );
     };
@@ -135,9 +213,9 @@ export class ChatService {
   }
 
 
-  /*
-   * Informe le backend que l'utilisateur quitte
-   * la conversation.
+  /**
+   * Informe le backend que l'utilisateur
+   * quitte la conversation.
    */
   leaveConversation(): void {
 
@@ -166,15 +244,21 @@ export class ChatService {
 
     this.client.publish({
 
-      destination: '/app/chat/leave',
+      destination:
+        '/app/chat/leave',
 
       body: JSON.stringify({
-        conversationId: this.currentConversationId
+
+        conversationId:
+          this.currentConversationId
       })
     });
   }
 
 
+  /**
+   * Envoie un message.
+   */
   sendMessage(
     request: ChatMessageRequest
   ): void {
@@ -188,6 +272,15 @@ export class ChatService {
       return;
     }
 
+    if (this.currentConversationId === null) {
+
+      console.error(
+        'Impossible d’envoyer le message : aucune conversation active'
+      );
+
+      return;
+    }
+
     console.log(
       'Envoi du message :',
       request
@@ -195,14 +288,18 @@ export class ChatService {
 
     this.client.publish({
 
-      destination: '/app/chat',
+      destination:
+        '/app/chat',
 
-      body: JSON.stringify(request)
-
+      body:
+        JSON.stringify(request)
     });
   }
 
 
+  /**
+   * Ferme proprement la connexion WebSocket.
+   */
   disconnect(): void {
 
     if (this.client) {
@@ -212,7 +309,8 @@ export class ChatService {
       this.client = null;
     }
 
-    this.currentConversationId = null;
+    this.currentConversationId =
+      null;
 
     this.connectedSubject.next(false);
   }

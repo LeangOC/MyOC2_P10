@@ -84,11 +84,14 @@
     </textarea>
 
     <button
-      type="submit"
-      [disabled]="!newMessage.trim()">
-
+      type="button"
+      [disabled]="
+    !connected ||
+    conversationId === null ||
+    !newMessage.trim()
+  "
+      (click)="sendMessage()">
       Envoyer
-
     </button>
 
   </form>

@@ -3,6 +3,7 @@ package com.ycyw.chatpoc.auth.controller;
 import com.ycyw.chatpoc.auth.dto.LoginRequest;
 import com.ycyw.chatpoc.auth.dto.LoginResponse;
 import com.ycyw.chatpoc.auth.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Authentifier un utilisateur")
     public LoginResponse login(
             @Valid @RequestBody LoginRequest request) {
 

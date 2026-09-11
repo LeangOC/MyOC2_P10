@@ -137,40 +137,37 @@ D:.
 └── docker-compose.yml     # PostgreSQL 
 ```
 
-## Installation
+## 5. Installation
 ```bash
-git clone git@github.com:anthony-openclassroom/p10-yourcaryourway.git ycyw
+git clone https://github.com/LeangOC/MyOC2_P10.git ycyw
 cd ycyw
 ```
 
-### 2. Démarrer la base de données
+### Démarrer la base de données
 
 ```bash
 docker compose up -d
 ```
 
-PostgreSQL sera disponible sur `localhost:5433`.
+PostgreSQL sera disponible sur `localhost:5432`.
 
-### 3. Configurer le backend
+###  Configurer le backend
 
 ```bash
 cd backend
-cp .env.sample .env
 ```
 
-Éditer `.env` si nécessaire (les valeurs par défaut fonctionnent avec le `docker-compose.yml`) :
+Éditer `.env` si nécessaire `) :
+
 
 ```env
-SPRING_PROFILES_ACTIVE=dev
-
-DATABASE_URL=jdbc:postgresql://localhost:5433/ycyw_dev
+DATABASE_URL=jdbc:postgresql://localhost:5432/ycyw_chat
 DATABASE_USERNAME=ycyw
 DATABASE_PASSWORD=dev_password
 
-FRONTEND_URL=http://localhost:4200
 ```
 
-### 4. Installer les dépendances frontend
+### Installer les dépendances frontend
 
 ```bash
 cd ../frontend
@@ -187,169 +184,150 @@ Ouvrir **deux terminaux**.
 
 ```bash
 cd backend
-./mvnw spring-boot:run
+mvnw spring-boot:run
 ```
 
-API disponible sur `http://localhost:8081`
-Swagger UI sur `http://localhost:8081/swagger-ui.html`
+API disponible sur `http://localhost:8080`
+
 
 **Terminal 2 - Frontend**
 
 ```bash
 cd frontend
-npm start
+ng serve --port 4000
 ```
 
-Application disponible sur `http://localhost:4200`
+Application disponible sur `http://localhost:4000`
 
 ---
 
 ## Utiliser le tchat (mode démo)
 
-Le POC simule une session entre deux rôles via deux onglets. Aucune authentification n'est requise.
+Le POC simule une conversation entre deux rôles via deux onglets.
 
-1. Ouvrir `http://localhost:4200` → cliquer **Contacter le support**
-2. Une session est créée automatiquement et l'URL contient `?sessionId=...&role=client`
-3. Copier le **lien agent** affiché dans le header du tchat
-4. Ouvrir ce lien dans un **second onglet** → vue agent active
-5. Les deux onglets communiquent en temps réel via WebSocket
+### Client ( Alice@ycyw.test )
+1. Connexion `http://localhost:4000` → Entrer le login Email et le mot de passe
+2. cliquer **Contacter le support**
+3. Une fenêtre de conversation pour le client  
+![Client_Tchat.png](screenshot/Client_Tchat.png)
+
+
+### Support ( Dupond@ycyw.test )
+1. Connexion `http://localhost:4000` → Entrer le login Email et le mot de passe
+2. Une fenêtre de conversation pour le client  
+![Support_Tchat.png](screenshot/Support_Tchat.png)
 
 ---
+
+
 
 ## API REST
+Base URL :
 
-Base URL : `http://localhost:8081/api`
+```text
+http://localhost:8080/api
 
-| Méthode | Endpoint                       | Description                         |
-| ------- | ------------------------------ | ----------------------------------- |
-| `POST`  | `/chat/sessions`               | Créer une session de tchat          |
-| `GET`   | `/chat/sessions/{id}/messages` | Récupérer l'historique des messages |
-| `PATCH` | `/chat/sessions/{id}/close`    | Fermer une session                  |
+````
+| Méthode | Endpoint                                           | Description                                            |
+| ------- | -------------------------------------------------- | ------------------------------------------------------ |
+| `GET`   | `/support/conversations`                           | Récupérer les conversations du support                 |
+| `POST`  | `/support/conversations`                           | Créer une conversation pour un client                  |
+| `GET`   | `/support/conversations/{conversationId}/messages` | Récupérer l'historique des messages d'une conversation |
+| `POST`  | `/auth/login`                                      | Authentifier un utilisateur                            |
+
+
 
 La documentation complète (schémas, exemples) est disponible sur **Swagger UI** :
-`http://localhost:8081/swagger-ui.html`
+`http://localhost:8080/swagger-ui.html`:  
+![Swagger-UI.png](screenshot/Swagger-UI.png)
 
 ---
 
-## WebSocket (STOMP -> Simple Text Oriented Messaging Protocol)
 
-Point de connexion : `http://localhost:8081/ws-sockjs` (SockJS fallback activé)
+### WebSocket / STOMP
 
-| Type          | Destination               | Description                         |
-| ------------- | ------------------------- | ----------------------------------- |
-| **Subscribe** | `/topic/chat/{sessionId}` | Recevoir les messages d'une session |
-| **Publish**   | `/app/chat/{sessionId}`   | Envoyer un message                  |
+L'application utilise **WebSocket** pour établir une connexion persistante entre le client Angular et le serveur Spring Boot.
 
-**Format du message envoyé :**
+**STOMP (Simple Text Oriented Messaging Protocol)** est utilisé au-dessus de WebSocket pour structurer les échanges de messages.
 
-```json
-{
-	"content": "Bonjour, j'ai besoin d'aide.",
-	"senderRole": "client"
-}
+### Point de connexion
+
+```text
+ws://localhost:8080/ws-chat
+````
+
+### Préfixes STOMP
+
+* `/app` : destination des messages envoyés par le client vers les méthodes du serveur Spring Boot (`@MessageMapping`).
+* `/topic` : destination des messages diffusés par le broker aux clients abonnés.
+
+### Destinations utilisées
+
+| Type          | Destination                             | Description                                            |
+| ------------- | --------------------------------------- | ------------------------------------------------------ |
+| **Subscribe** | `/topic/conversations/{conversationId}` | Recevoir les messages et événements de la conversation |
+| **Publish**   | `/app/chat`                             | Envoyer un message dans une conversation               |
+| **Publish**   | `/app/chat/leave`                       | Signaler qu'un client quitte la conversation           |
+
+
+### Le schéma à retenir
+
+```text
+                    WebSocket
+Angular  ──────────────────────────► Spring Boot
+         ws://localhost:8080/ws-chat
+
+                    STOMP
+
+Client ── SEND ──► /app/chat                   # Le client publie avec json {"conversationId": 62,"senderId": 4,"content": "Bonjour"}
+                         │
+                         ▼
+                  ChatWebSocketController
+                         │
+                         ▼
+              messagingTemplate
+                         │
+                         ▼
+Client ◄─ MESSAGE ─ /topic/conversations/{id}    # Le serveur diffuse la réponse aux clients abonnés à conversationId=62
+
+
+Client ── SEND ──► /app/chat/leave               # Lorsqu'un client quitte la conversation, 
+                         │                       # le client publie sur { "conversationId": 62}
+                         ▼
+                  Ferme la conversation
+                         │
+                         ▼
+Client ◄─ MESSAGE ─ /topic/conversations/{id}    # Le serveur ferme alors la conversation et diffuse l'événement  
+                  CONVERSATION_CLOSED            # avec {"type": "CONVERSATION_CLOSED","conversationId": 62}
 ```
 
-**Format du message reçu :**
-
-```json
-{
-	"id": "uuid",
-	"sessionId": "uuid",
-	"senderRole": "client",
-	"content": "Bonjour, j'ai besoin d'aide.",
-	"sentAt": "2026-01-15T10:30:00Z"
-}
-```
 
 ---
 
-## Base de données
+## Tables utilisées pour notre Tchat PoC
 
-Les migrations sont gérées par **Flyway** et s'exécutent automatiquement au démarrage du backend.
+| Schema     | Name                 | Type     |
+| -----------|----------------------|----------|
+| **public** | `chat_conversations` | table    |
+| **public** | `chat_messages`      | table    |
+| **public** | `users`              | table    |
 
-```sql
-chat_sessions
-  id          UUID PK
-  user_id     UUID          -- ID client (auth externe)
-  agency_id   UUID          -- ID agence (auth externe)
-  status      VARCHAR(10)   -- 'open' | 'closed'
-  created_at  TIMESTAMPTZ
-  closed_at   TIMESTAMPTZ
+Ces trois tables sont créés automatiquement lors du démarrage de Backend grâce aux entités.
 
-chat_messages
-  id          UUID PK
-  session_id  UUID FK → chat_sessions(id)
-  sender_role VARCHAR(10)   -- 'client' | 'agent'
-  content     TEXT
-  sent_at     TIMESTAMPTZ
-```
 
----
-
-## Tests
-
-```bash
-cd backend
-./mvnw test
-```
-
-Les tests utilisent **H2 en mémoire** - aucune base externe requise. Flyway est désactivé pour les tests (schéma créé par `ddl-auto=create-drop`).
-
----
-
-## Dépannage
-
-### Le port 5433 est déjà utilisé
-
-Le `docker-compose.yml` expose PostgreSQL sur **5433** (et non 5432) pour éviter les conflits avec une installation PostgreSQL locale. Si 5433 est déjà pris :
-
-```bash
-# Identifier le processus qui utilise le port
-lsof -i :5433
-# Arrêter le conteneur en conflit si c'est un autre Docker
-docker ps
-docker stop <nom_du_conteneur>
-```
-
-### `./mvnw` - Permission refusée
-
-```bash
-chmod +x backend/mvnw
-```
-
-### Le backend démarre mais les migrations Flyway échouent
-
-Vérifier que le conteneur PostgreSQL est bien démarré avant de lancer le backend :
-
-```bash
-docker compose ps   # status doit être "running"
-docker compose logs db
-```
-
-### Angular ne se connecte pas au backend (erreur CORS)
-
-Vérifier que la variable `FRONTEND_URL` dans `.env` correspond exactement à l'URL utilisée par le navigateur (par défaut `http://localhost:4200`).
-
-### Je ne vois pas les messages en temps réel
-
-- Vérifier que les **deux onglets** utilisent le même `sessionId` dans l'URL.
-- Vérifier que le backend est démarré avant l'ouverture du frontend (la connexion WebSocket échoue silencieusement si le backend est absent).
-
----
-
-> **Sécurité** : le fichier `.env` contient vos identifiants de base de données - ne le commitez jamais. Seul `.env.sample` (sans valeurs sensibles) doit être versionné.
+> **Sécurité** : le fichier `.env` contient vos identifiants de base de données - ne le commitez jamais. 
 
 ---
 
 ## Variables d'environnement - référence complète
 
 | Variable                 | Défaut (`dev`)                              | Description                  |
-| ------------------------ | ------------------------------------------- | ---------------------------- |
+| ------------------------ |---------------------------------------------| ---------------------------- |
 | `SPRING_PROFILES_ACTIVE` | `dev`                                       | Profil Spring actif          |
 | `DATABASE_URL`           | `jdbc:postgresql://localhost:5433/ycyw_dev` | URL JDBC PostgreSQL          |
 | `DATABASE_USERNAME`      | `ycyw`                                      | Utilisateur base de données  |
 | `DATABASE_PASSWORD`      | `dev_password`                              | Mot de passe base de données |
-| `FRONTEND_URL`           | `http://localhost:4200`                     | URL du frontend (CORS)       |
+| `FRONTEND_URL`           | `http://localhost:4000`                     | URL du frontend (CORS)       |
 
 ---
 

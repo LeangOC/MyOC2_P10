@@ -28,14 +28,14 @@ Le PoC doit permettre de démontrer :
 
 | Technologie | Version          |
 |---|------------------|
-| Java | 17               |
+| Java | 21               |
 | Spring Boot | 3.5.0            |
 | Maven | 3.8.8            |
 | Node.js | 20.19.4          |
 | Angular | 21.2.22          |
 | TypeScript | 5.9.3            |
 | PostgreSQL | 17               |
-| Docker | 29.1.3  |
+| Docker | 29.1.3           |
 | WebSocket | Spring WebSocket |
 | STOMP | @stomp/stompjs   |
 | ORM | Spring Data JPA  |
@@ -130,11 +130,10 @@ D:.
 │   ├── angular.json    
 │   └── package.json
 │
-├── docs/                 # Documentation projet      
-│   ├── Dossier_Architecture.md
+├── docs/                          # Documentation projet      
 │   ├── cahier_des_charges.md
-│   └── Audit.md
-└── docker-compose.yml     # PostgreSQL 
+│   └── Dossier_Architecture.md
+└── docker-compose.yml             # PostgreSQL 
 ```
 
 ## 5. Installation
@@ -176,7 +175,7 @@ npm install
 
 ---
 
-## Lancer le projet
+## 6. Lancer le projet
 
 Ouvrir **deux terminaux**.
 
@@ -201,7 +200,7 @@ Application disponible sur `http://localhost:4000`
 
 ---
 
-## Utiliser le tchat (mode démo)
+## 7. Utiliser le tchat (mode démo)
 
 Le POC simule une conversation entre deux rôles via deux onglets.
 
@@ -221,7 +220,7 @@ Le POC simule une conversation entre deux rôles via deux onglets.
 
 
 
-## API REST
+## 8. API REST
 Base URL :
 
 ```text
@@ -244,7 +243,7 @@ La documentation complète (schémas, exemples) est disponible sur **Swagger UI*
 ---
 
 
-### WebSocket / STOMP
+## 9. WebSocket / STOMP
 
 L'application utilise **WebSocket** pour établir une connexion persistante entre le client Angular et le serveur Spring Boot.
 
@@ -304,7 +303,7 @@ Client ◄─ MESSAGE ─ /topic/conversations/{id}    # Le serveur ferme alors 
 
 ---
 
-## Tables utilisées pour notre Tchat PoC
+## 10. Tables utilisées pour notre Tchat PoC
 
 | Schema     | Name                 | Type     |
 | -----------|----------------------|----------|
@@ -317,24 +316,12 @@ Ces trois tables sont créés automatiquement lors du démarrage de Backend grâ
 
 > **Sécurité** : le fichier `.env` contient vos identifiants de base de données - ne le commitez jamais. 
 
----
 
-## Variables d'environnement - référence complète
 
-| Variable                 | Défaut (`dev`)                              | Description                  |
-| ------------------------ |---------------------------------------------| ---------------------------- |
-| `SPRING_PROFILES_ACTIVE` | `dev`                                       | Profil Spring actif          |
-| `DATABASE_URL`           | `jdbc:postgresql://localhost:5433/ycyw_dev` | URL JDBC PostgreSQL          |
-| `DATABASE_USERNAME`      | `ycyw`                                      | Utilisateur base de données  |
-| `DATABASE_PASSWORD`      | `dev_password`                              | Mot de passe base de données |
-| `FRONTEND_URL`           | `http://localhost:4000`                     | URL du frontend (CORS)       |
-
----
-
-## Documentation
+## 11. Documentation
 
 | Document                                                   | Contenu                                                                  |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [`docs/architecture.md`](docs/architecture.md)             | Architecture cible complète, audit de l'existant, UML, modèle de données |
-| [`docs/cahier_des_charges.md`](docs/cahier_des_charges.md) | Spécifications fonctionnelles, personas, règles métier                   |
-| [`docs/resume.md`](docs/resume.md)                         | Référence rapide - stack, entités, fonctionnalités, contraintes          |
+|------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`docs/Dossier_Architecture.md`](docs/architecture.md)     | Architecture cible complète, audit de l'existant, UML, modèle de données |
+| [`docs/cahier_des_charges.md`](docs/cahier_des_charges.md) | Spécifications fonctionnelles,scénario d'utilisateur, règles métier       |
+

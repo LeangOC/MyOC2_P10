@@ -92,8 +92,39 @@ Les technologies utilisées sont hétérogènes :
 L'architecture dominante est monolithique.
 
 Chaque marché dispose également de sa propre base de données et les modèles de données ont progressivement divergé.
-
 ---
+### Architecture technique actuelle
+
+```mermaid
+flowchart TB
+
+    subgraph OVH["OVH"]
+        FR["France<br/>Java EE<br/>JSP / JSF"]
+        DE["Allemagne<br/>Java EE<br/>JSP / JSF"]
+        ES["Espagne<br/>Java EE<br/>JSP / JSF"]
+        IT["Italie<br/>Java EE<br/>JSP / JSF"]
+    end
+
+    subgraph AWS["AWS"]
+        UK["Royaume-Uni<br/>Laravel"]
+        CA["Canada<br/>React / Node.js"]
+    end
+
+    subgraph Azure["Azure"]
+        US["États-Unis<br/>Angular / Spring Boot"]
+    end
+
+    FR --> DB1[("BDD FR")]
+    DE --> DB2[("BDD DE")]
+    ES --> DB3[("BDD ES")]
+    IT --> DB4[("BDD IT")]
+    UK --> DB5[("BDD UK")]
+    CA --> DB6[("BDD CA")]
+    US --> DB7[("BDD US")]
+```
+
+Cette représentation met en évidence la fragmentation actuelle : chaque marché dispose de sa propre application et de son propre environnement de données.
+
 
 ## 2.2 Maintenabilité
 

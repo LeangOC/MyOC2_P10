@@ -81,13 +81,13 @@ L'existant est constitué de plusieurs applications correspondant aux différent
 
 Les technologies utilisées sont hétérogènes :
 
-| Marché / famille             | Frontend  | Backend     | Infrastructure |
-| ---------------------------- | --------- | ----------- | -------------- |
+| Marché / famille             | Frontend | Backend     | Infrastructure |
+| ---------------------------- |----------|-------------| -------------- |
 | France                       | JSP / JSF | Java EE     | OVH            |
 | Allemagne / Espagne / Italie | JSP / JSF | Java EE     | OVH            |
-| Royaume-Uni                  | Laravel   | PHP         | AWS EC2        |
-| Canada                       | React     | Node.js     | AWS            |
-| États-Unis                   | Angular   | Spring Boot | Azure          |
+| Royaume-Uni                  |   —       | Laravel/PHP | AWS EC2        |
+| Canada                       | React    | Node.js     | AWS            |
+| États-Unis                   | Angular  | Spring Boot | Azure          |
 
 L'architecture dominante est monolithique.
 
@@ -106,7 +106,7 @@ flowchart TB
     end
 
     subgraph AWS["AWS"]
-        UK["Royaume-Uni<br/>Laravel"]
+        UK["Royaume-Uni<br/>Laravel / PHP"]
         CA["Canada<br/>React / Node.js"]
     end
 

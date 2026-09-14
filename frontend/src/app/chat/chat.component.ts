@@ -219,7 +219,6 @@ export class ChatComponent
                * WebSocket.
                */
               this.chatService.disconnect();
-
               this.cdr.detectChanges();
             }
           }

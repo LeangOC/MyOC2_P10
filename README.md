@@ -183,7 +183,7 @@ Ouvrir **deux terminaux**.
 
 ```bash
 cd backend
-mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 API disponible sur `http://localhost:8080`

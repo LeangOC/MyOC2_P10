@@ -301,11 +301,8 @@ export class ChatService {
    * Ferme proprement la connexion WebSocket.
    */
   disconnect(): void {
-
     if (this.client) {
-
       this.client.deactivate();
-
       this.client = null;
     }
 

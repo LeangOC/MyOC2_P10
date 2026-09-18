@@ -725,7 +725,8 @@ Le modèle comprend :
 ---
 
 ## 5.2 Diagramme de classes  
-![Diagramme_UML_Donnees.png](../screenshot/Diagramme_UML_Donnees.png)  
+![Diagramme_UML_Donnees_YCYW_V1.png](../screenshot/Diagramme_UML_Donnees_YCYW_V1.png)
+ 
 Diagramme faite sous draw.io  
 ---
 
